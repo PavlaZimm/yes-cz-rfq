@@ -6,7 +6,7 @@
 // KONFIGURACE
 // ============================================
 const CONFIG = {
-    WEBHOOK_URL: 'https://hook.eu2.make.com/XXXXX', // TODO: Nastavte URL z Make.com webhooku
+    WEBHOOK_URL: 'https://hook.eu1.make.com/nyw1kstb4dh3bhaysu1vrsk7x9v87ddr',
     TIMEOUT: 10000,
     MIN_DATE_OFFSET: 1, // Nejdříve zítřek
     MAX_DATE_OFFSET: 90, // Maximálně 90 dní
