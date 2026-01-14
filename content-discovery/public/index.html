@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Discovery - Aktuální témata pro vaše weby</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🔍 Content Discovery System</h1>
+            <p class="subtitle">Aktuální témata z zahraničních zdrojů pro vaše cestovatelské weby</p>
+        </header>
+
+        <div class="controls">
+            <button id="refreshBtn" class="btn btn-primary">
+                🔄 Aktualizovat témata
+            </button>
+            <button id="scrapeBtn" class="btn btn-secondary">
+                🕷️ Spustit scraping
+            </button>
+            <select id="destinationFilter" class="filter-select">
+                <option value="all">Všechny destinace</option>
+                <option value="kastrup">Kastrup (Dánsko)</option>
+                <option value="attersee">Attersee (Rakousko)</option>
+                <option value="ithaka">Ithaka (Řecko)</option>
+            </select>
+            <input 
+                type="number" 
+                id="relevanceFilter" 
+                class="filter-input" 
+                placeholder="Min. relevance" 
+                value="1"
+                min="0"
+            >
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Načítám data...</p>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="stats" class="stats"></div>
+
+        <main id="content" class="content">
+            <!-- Témata se načtou zde -->
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

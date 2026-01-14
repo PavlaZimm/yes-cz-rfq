@@ -1,0 +1,26 @@
+{
+  "name": "content-discovery-system",
+  "version": "1.0.0",
+  "description": "Systém pro sledování zahraničních zdrojů a získávání aktuálních témat pro cestovatelské weby",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "scrape": "node scraper/scraper.js"
+  },
+  "keywords": [
+    "web-scraping",
+    "content-discovery",
+    "travel-content"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cheerio": "^1.0.0-rc.12",
+    "axios": "^1.6.2",
+    "node-cron": "^3.0.3",
+    "dotenv": "^16.3.1"
+  }
+}

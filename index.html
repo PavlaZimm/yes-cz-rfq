@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Poptat cenu - Yes.cz RFQ Systém pro aukce nejnižší ceny fotovoltaických komponentů">
+    <title>Poptat cenu - Yes.cz RFQ Systém</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="logo">yes.cz</div>
+                <div class="tagline">your energy stock</div>
+            </div>
+            <div class="contact-section">
+                <a href="tel:+420608887277" class="contact-link">
+                    <span class="contact-icon">📞</span>
+                    <span class="contact-text">+420 608 887 277</span>
+                </a>
+                <a href="mailto:info@yes.cz" class="contact-link">
+                    <span class="contact-icon">✉️</span>
+                    <span class="contact-text">info@yes.cz</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Error Alert -->
+            <div id="errorAlert" class="alert alert-error" role="alert" aria-live="assertive" style="display: none;">
+                <span class="alert-icon">❌</span>
+                <div class="alert-content">
+                    <strong>Chyba</strong>
+                    <p id="errorMessage"></p>
+                </div>
+                <button class="alert-close" aria-label="Zavřít" onclick="closeErrorAlert()">×</button>
+            </div>
+
+            <!-- Form Card -->
+            <div class="form-card">
+                <h1 class="form-title">Poptat cenu</h1>
+                <p class="form-subtitle">Vyplňte formulář a my vám zašleme nejlepší nabídku od našich dodavatelů</p>
+
+                <form id="rfqForm" class="form" novalidate>
+                    <!-- Jméno a příjmení -->
+                    <div class="form-group">
+                        <label for="zakaznik_jmeno" class="form-label">
+                            Jméno a příjmení <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="zakaznik_jmeno" 
+                            name="zakaznik_jmeno"
+                            class="form-input"
+                            required
+                            minlength="2"
+                            maxlength="100"
+                            pattern="[A-Za-zÁáČčĎďÉéĚěÍíŇňÓóŘřŠšŤťÚúŮůÝýŽž\s]+"
+                            placeholder="Jan Novák"
+                            aria-required="true"
+                            aria-invalid="false"
+                            aria-describedby="jmeno-error jmeno-hint"
+                        >
+                        <span id="jmeno-hint" class="form-hint">Minimálně 2 znaky, pouze písmena a mezery</span>
+                        <span id="jmeno-error" class="form-error" role="alert"></span>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="zakaznik_email" class="form-label">
+                            Email <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            id="zakaznik_email" 
+                            name="zakaznik_email"
+                            class="form-input"
+                            required
+                            placeholder="jan.novak@email.cz"
+                            aria-required="true"
+                            aria-invalid="false"
+                            aria-describedby="email-error"
+                        >
+                        <span id="email-error" class="form-error" role="alert"></span>
+                    </div>
+
+                    <!-- Telefon -->
+                    <div class="form-group">
+                        <label for="zakaznik_telefon" class="form-label">
+                            Telefon <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="tel" 
+                            id="zakaznik_telefon" 
+                            name="zakaznik_telefon"
+                            class="form-input"
+                            required
+                            placeholder="+420 123 456 789"
+                            maxlength="17"
+                            aria-required="true"
+                            aria-invalid="false"
+                            aria-describedby="telefon-error telefon-hint"
+                        >
+                        <span id="telefon-hint" class="form-hint">Formát: +420 123 456 789</span>
+                        <span id="telefon-error" class="form-error" role="alert"></span>
+                    </div>
+
+                    <!-- Název produktu -->
+                    <div class="form-group">
+                        <label for="produkt" class="form-label">
+                            Název produktu <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="produkt" 
+                            name="produkt"
+                            class="form-input"
+                            required
+                            minlength="2"
+                            maxlength="200"
+                            placeholder="např. Fotovoltaický panel 400W"
+                            aria-required="true"
+                            aria-invalid="false"
+                            aria-describedby="produkt-error produkt-helper"
+                        >
+                        <span id="produkt-helper" class="form-helper" style="display: none;">
+                            <span class="helper-icon">✓</span>
+                            Produkt předvyplněn z e-shopu
+                        </span>
+                        <span id="produkt-error" class="form-error" role="alert"></span>
+                    </div>
+
+                    <!-- Množství -->
+                    <div class="form-group">
+                        <label for="mnozstvi" class="form-label">
+                            Požadované množství <span class="required">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input 
+                                type="number" 
+                                id="mnozstvi" 
+                                name="mnozstvi"
+                                class="form-input"
+                                required
+                                min="1"
+                                step="1"
+                                placeholder="10"
+                                aria-required="true"
+                                aria-invalid="false"
+                                aria-describedby="mnozstvi-error mnozstvi-hint"
+                            >
+                            <span class="input-suffix">ks</span>
+                        </div>
+                        <span id="mnozstvi-hint" class="form-hint">Celé číslo, minimálně 1</span>
+                        <span id="mnozstvi-error" class="form-error" role="alert"></span>
+                    </div>
+
+                    <!-- PSČ -->
+                    <div class="form-group">
+                        <label for="psc_dodani" class="form-label">
+                            PSČ místa dodání <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="psc_dodani" 
+                            name="psc_dodani"
+                            class="form-input"
+                            required
+                            pattern="[0-9]{5}"
+                            maxlength="6"
+                            placeholder="120 00"
+                            aria-required="true"
+                            aria-invalid="false"
+                            aria-describedby="psc-error psc-hint"
+                        >
+                        <span id="psc-hint" class="form-hint">Formát: 120 00</span>
+                        <span id="psc-error" class="form-error" role="alert"></span>
+                    </div>
+
+                    <!-- Termín dodání -->
+                    <div class="form-group">
+                        <label for="pozadovany_termin" class="form-label">
+                            Termín dodání <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="date" 
+                            id="pozadovany_termin" 
+                            name="pozadovany_termin"
+                            class="form-input"
+                            required
+                            aria-required="true"
+                            aria-invalid="false"
+                            aria-describedby="termin-error termin-hint"
+                        >
+                        <span id="termin-hint" class="form-hint">Nejdříve zítřek, maximálně 90 dní od dneška</span>
+                        <span id="termin-error" class="form-error" role="alert"></span>
+                    </div>
+
+                    <!-- Poznámka -->
+                    <div class="form-group">
+                        <label for="poznamka" class="form-label">
+                            Poznámka <span class="optional">(volitelné)</span>
+                        </label>
+                        <textarea 
+                            id="poznamka" 
+                            name="poznamka"
+                            class="form-input form-textarea"
+                            maxlength="500"
+                            rows="4"
+                            placeholder="Doplňující informace k poptávce..."
+                            aria-describedby="poznamka-hint poznamka-counter"
+                        ></textarea>
+                        <div class="form-hint-row">
+                            <span id="poznamka-hint" class="form-hint">Maximálně 500 znaků</span>
+                            <span id="poznamka-counter" class="form-counter">0/500</span>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary" id="submitBtn" aria-label="Odeslat poptávku">
+                        <span class="btn-text">Odeslat poptávku</span>
+                        <span class="btn-loader" aria-hidden="true" style="display: none;">
+                            <span class="spinner"></span>
+                            Odesílám...
+                        </span>
+                    </button>
+
+                    <p class="form-footer">
+                        Odesláním poptávky souhlasíte se zpracováním osobních údajů.
+                    </p>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="script.js"></script>
+</body>
+</html>

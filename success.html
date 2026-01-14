@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Poptávka úspěšně odeslána - Yes.cz RFQ Systém">
+    <title>Děkujeme - Yes.cz RFQ Systém</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="logo">yes.cz</div>
+                <div class="tagline">your energy stock</div>
+            </div>
+            <div class="contact-section">
+                <a href="tel:+420608887277" class="contact-link">
+                    <span class="contact-icon">📞</span>
+                    <span class="contact-text">+420 608 887 277</span>
+                </a>
+                <a href="mailto:info@yes.cz" class="contact-link">
+                    <span class="contact-icon">✉️</span>
+                    <span class="contact-text">info@yes.cz</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <div class="success-card">
+                <!-- Success Icon -->
+                <div class="success-icon">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                </div>
+
+                <!-- Success Content -->
+                <h1 class="success-title">Děkujeme za vaši poptávku!</h1>
+                <p class="success-perex">Vaše poptávka byla úspěšně odeslána.</p>
+
+                <!-- Email Info Box -->
+                <div id="emailInfoBox" class="info-box" style="display: none;">
+                    <div class="info-box-icon">📧</div>
+                    <div class="info-box-content">
+                        <strong>Potvrzovací email jsme zaslali na:</strong>
+                        <p class="info-box-email" id="userEmail"></p>
+                    </div>
+                </div>
+
+                <!-- Process Steps -->
+                <div class="process-steps">
+                    <h2 class="process-title">Co se stane dál?</h2>
+                    
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <strong>Oslovíme naše dodavatele</strong>
+                            <p>Vaši poptávku obdrží prověření dodavatelé</p>
+                        </div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <strong>Obdržíte nabídky</strong>
+                            <p>Do 7 dnů vám přijdou konkurenční nabídky</p>
+                        </div>
+                    </div>
+
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <strong>Vyberte nejlepší nabídku</strong>
+                            <p>V emailu najdete odkaz pro výběr vítězné nabídky</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="success-actions">
+                    <a href="https://www.yes.cz" class="btn btn-primary">
+                        Zpět na hlavní stránku
+                    </a>
+                    <a href="https://www.yes.cz/produkty" class="btn btn-secondary">
+                        Zobrazit produkty
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script>
+        // Načíst email z sessionStorage
+        const email = sessionStorage.getItem('rfq_email');
+        if (email) {
+            document.getElementById('userEmail').textContent = email;
+            document.getElementById('emailInfoBox').style.display = 'flex';
+            // Smazat po zobrazení (bezpečnost)
+            sessionStorage.removeItem('rfq_email');
+        }
+    </script>
+</body>
+</html>
