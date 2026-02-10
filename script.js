@@ -27,9 +27,14 @@ const CONFIG = {
         'Goodwe',
         'Hanersun',
         'Huasan',
+        'Huawei Měniče',
+        'JA Solar',
+        'Jinko Solar',
         'Leapton',
+        'Longi',
         'Risen',
         'Solax',
+        'Trina',
         'Victron'
     ]
 };
