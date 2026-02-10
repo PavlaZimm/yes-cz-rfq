@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Poptávka úspěšně odeslána - Yes.cz RFQ Systém">
     <title>Děkujeme - Yes.cz RFQ Systém</title>
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Styles -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -63,7 +63,7 @@
                 <!-- Process Steps -->
                 <div class="process-steps">
                     <h2 class="process-title">Co se stane dál?</h2>
-                    
+
                     <div class="step-item">
                         <div class="step-number">1</div>
                         <div class="step-content">
@@ -91,11 +91,11 @@
 
                 <!-- Action Buttons -->
                 <div class="success-actions">
-                    <a href="https://www.yes.cz" class="btn btn-primary">
-                        Zpět na hlavní stránku
+                    <a href="index.html" class="btn btn-primary">
+                        Poptat další značku
                     </a>
-                    <a href="https://www.yes.cz/produkty" class="btn btn-secondary">
-                        Zobrazit produkty
+                    <a href="https://www.yes.cz" class="btn btn-secondary">
+                        Zpět na hlavní stránku
                     </a>
                 </div>
             </div>
@@ -105,11 +105,10 @@
     <!-- Scripts -->
     <script>
         // Načíst email z sessionStorage
-        const email = sessionStorage.getItem('rfq_email');
+        var email = sessionStorage.getItem('rfq_email');
         if (email) {
             document.getElementById('userEmail').textContent = email;
             document.getElementById('emailInfoBox').style.display = 'flex';
-            // Smazat po zobrazení (bezpečnost)
             sessionStorage.removeItem('rfq_email');
         }
     </script>
