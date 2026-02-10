@@ -240,11 +240,12 @@ Formulář odesílá tato data do Make.com:
 ```json
 {
   "timestamp": "2026-01-14T14:30:00.000Z",
-  "produkt": "Fotovoltaický panel 400W",
+  "znacka": "Huawei",
+  "specifikace": "Panel XYZ 400W - 50 ks\nPanel ABC 500W - 30 ks\nStřídač DEF 10kW - 5 ks",
   "zakaznik_jmeno": "Jan Novák",
   "zakaznik_email": "jan.novak@email.cz",
   "zakaznik_telefon": "420123456789",
-  "mnozstvi": 100,
+  "mnozstvi": 85,
   "psc_dodani": "12000",
   "pozadovany_termin": "2026-02-15",
   "poznamka": "Preferuji dodání na jednu adresu",
@@ -254,14 +255,17 @@ Formulář odesílá tato data do Make.com:
 ```
 
 V Make.com k těmto datům přistupujete jako:
-- `{{1.produkt}}` - název produktu
+- `{{1.znacka}}` - značka (brand) - vybraná z dropdown seznamu
+- `{{1.specifikace}}` - specifikace produktů (víceřádkový text)
 - `{{1.zakaznik_jmeno}}` - jméno zákazníka
 - `{{1.zakaznik_email}}` - email zákazníka
 - `{{1.zakaznik_telefon}}` - telefon zákazníka
-- `{{1.mnozstvi}}` - množství
+- `{{1.mnozstvi}}` - celkové množství
 - `{{1.psc_dodani}}` - PSČ
 - `{{1.pozadovany_termin}}` - termín dodání
 - `{{1.poznamka}}` - poznámka (volitelné)
+
+**Poznámka:** Pole `produkt` bylo nahrazeno dvojicí `znacka` + `specifikace`. V Airtable je třeba přidat odpovídající sloupce.
 
 ---
 
