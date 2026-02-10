@@ -18,26 +18,19 @@ const CONFIG = {
     // Fallback značky - použijí se, pokud není nastaveno BRANDS_API_URL
     // nebo pokud načtení z API selže
     FALLBACK_BRANDS: [
+        'Aiko',
         'Canadian Solar',
+        'Canadian Solar Měniče',
         'DAH Solar',
-        'DAS Solar',
-        'Deye',
         'FoxESS',
         'Fronius',
         'Goodwe',
-        'Growatt',
-        'Huawei',
-        'JA Solar',
-        'Jinko Solar',
-        'LONGi',
-        'Pylontech',
+        'Hanersun',
+        'Huasan',
+        'Leapton',
         'Risen',
-        'Sofar Solar',
-        'SolarEdge',
-        'SMA',
-        'Sungrow',
-        'Trina Solar',
-        'Victron Energy'
+        'Solax',
+        'Victron'
     ]
 };
 
