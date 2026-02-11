@@ -14,7 +14,7 @@ const CONFIG = {
     MIN_DATE_OFFSET: 1,
     MAX_DATE_OFFSET: 90,
     SUCCESS_URL: 'success.html',
-    DEBUG: false,
+    DEBUG: true,
     // Fallback značky - použijí se, pokud není nastaveno BRANDS_API_URL
     // nebo pokud načtení z API selže
     FALLBACK_BRANDS: [
@@ -526,6 +526,8 @@ function validateForm() {
     let hasErrors = false;
     let firstErrorField = null;
 
+    log('Validace:', errors);
+
     Object.keys(errors).forEach(key => {
         if (errors[key]) {
             showFieldError(key, errors[key]);
@@ -706,6 +708,17 @@ function restoreContactInfo() {
 // ============================================
 
 async function submitForm() {
+    // Před validací: zkusit nastavit značku z typed inputu (řeší race condition s blur)
+    if (!inputs.znacka.value && inputs.znackaInput.value.trim()) {
+        const typed = inputs.znackaInput.value.trim();
+        const match = brands.find(b => b.toLowerCase() === typed.toLowerCase());
+        if (match) {
+            selectedBrand = match;
+            inputs.znacka.value = match;
+            inputs.znackaInput.value = match;
+        }
+    }
+
     if (!validateForm()) {
         return;
     }
@@ -828,7 +841,16 @@ function resetForNewBrand() {
 // Form submit
 form.addEventListener('submit', (e) => {
     e.preventDefault();
+    log('Form submit triggered');
     submitForm();
+});
+
+// Fallback: click listener na submit button
+submitBtn.addEventListener('click', (e) => {
+    // Pokud button není type=submit nebo event nebubluje, zajistí odeslání
+    if (e.target.closest('form') && !submitBtn.disabled) {
+        log('Submit button clicked');
+    }
 });
 
 // Poptat další značku
