@@ -826,6 +826,87 @@ body {
 }
 
 /* ============================================
+   Supplier Portal - Detail poptávky
+   ============================================ */
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+}
+
+.detail-item {
+    padding: var(--spacing-sm);
+    background: var(--gray-light-bg);
+    border-radius: var(--radius-sm);
+}
+
+.detail-item-full {
+    grid-column: 1 / -1;
+}
+
+.detail-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+}
+
+.detail-value {
+    display: block;
+    font-size: var(--font-size-body);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.detail-value-highlight {
+    color: var(--orange-primary);
+    font-weight: 600;
+}
+
+.detail-value-pre {
+    white-space: pre-line;
+    line-height: 1.6;
+}
+
+.deadline-box {
+    background: var(--navy-dark);
+    color: var(--white);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.deadline-label {
+    font-size: var(--font-size-label);
+    font-weight: 500;
+    opacity: 0.85;
+}
+
+.deadline-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--orange-primary);
+}
+
+@media (max-width: 768px) {
+    .detail-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .deadline-box {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* ============================================
    Accessibility
    ============================================ */
 /* Focus indicators */
