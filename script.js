@@ -6,7 +6,7 @@
 // KONFIGURACE
 // ============================================
 const CONFIG = {
-    WEBHOOK_URL: 'https://hook.eu1.make.com/nyw1kstb4dh3bhaysu1vrsk7x9v87ddr',
+    WEBHOOK_URL: 'https://hook.eu1.make.com/1f7yqjfjkbxjccqgkyychhl1jo73783l',
     // URL pro načtení značek z Airtable (Make.com webhook nebo vlastní API)
     // Pokud je prázdný, použijí se fallback značky
     BRANDS_API_URL: '',
