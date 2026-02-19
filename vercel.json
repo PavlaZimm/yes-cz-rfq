@@ -7,6 +7,10 @@
     {
       "source": "/success.html",
       "destination": "/success.html"
+    },
+    {
+      "source": "/nabidka",
+      "destination": "/nabidka.html"
     }
   ],
   "headers": [

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="description" content="Zadání cenové nabídky - Yes.cz">
+    <title>Cenová nabídka - Yes.cz</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <div class="logo-section">
+                <div class="logo">yes.cz</div>
+                <div class="tagline">your energy stock</div>
+            </div>
+            <div class="contact-section">
+                <a href="tel:+420608887277" class="contact-link">
+                    <span class="contact-icon">📞</span>
+                    <span class="contact-text">+420 608 887 277</span>
+                </a>
+                <a href="mailto:info@yes.cz" class="contact-link">
+                    <span class="contact-icon">✉️</span>
+                    <span class="contact-text">info@yes.cz</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Error Alert (neplatný odkaz / chyba) -->
+            <div id="errorAlert" class="alert alert-error" role="alert" aria-live="assertive" style="display: none;">
+                <span class="alert-icon">&#10060;</span>
+                <div class="alert-content">
+                    <strong>Chyba</strong>
+                    <p id="errorMessage"></p>
+                </div>
+            </div>
+
+            <!-- Stav: Neplatný odkaz -->
+            <div id="invalidLinkCard" class="form-card" style="display: none; text-align: center;">
+                <h1 class="form-title">Neplatný odkaz</h1>
+                <p class="form-subtitle">Tento odkaz je neplatný nebo poškozený. Zkontrolujte prosím email s poptávkou a použijte odkaz v něm.</p>
+                <p style="margin-top: 24px; color: var(--text-secondary);">Máte-li dotazy, kontaktujte nás na <a href="mailto:info@yes.cz" style="color: var(--orange-primary);">info@yes.cz</a></p>
+            </div>
+
+            <!-- Stav: Uzávěrka vypršela -->
+            <div id="expiredCard" class="form-card" style="display: none; text-align: center;">
+                <h1 class="form-title">Uzávěrka vypršela</h1>
+                <p class="form-subtitle">Uzávěrka této poptávky již vypršela. Nabídku již není možné zadat.</p>
+                <p style="margin-top: 24px; color: var(--text-secondary);">Máte-li dotazy, kontaktujte nás na <a href="mailto:info@yes.cz" style="color: var(--orange-primary);">info@yes.cz</a></p>
+            </div>
+
+            <!-- Stav: Formulář nabídky -->
+            <div id="offerCard" class="form-card" style="display: none;">
+                <h1 class="form-title">Cenová nabídka</h1>
+                <p class="form-subtitle">Zadejte vaši cenovou nabídku k poptávce níže</p>
+
+                <!-- Detail poptávky (read-only) -->
+                <fieldset class="form-section">
+                    <legend class="form-section-title">Detail poptávky</legend>
+
+                    <div class="detail-grid">
+                        <div class="detail-item" id="detail-dodavatel" style="display: none;">
+                            <span class="detail-label">Dodavatel</span>
+                            <span class="detail-value detail-value-highlight" id="val-dodavatel"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Značka</span>
+                            <span class="detail-value" id="val-znacka"></span>
+                        </div>
+                        <div class="detail-item detail-item-full">
+                            <span class="detail-label">Specifikace</span>
+                            <span class="detail-value detail-value-pre" id="val-specifikace"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Požadované množství</span>
+                            <span class="detail-value" id="val-mnozstvi"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">PSČ dodání</span>
+                            <span class="detail-value" id="val-psc"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Požadovaný termín</span>
+                            <span class="detail-value" id="val-termin"></span>
+                        </div>
+                    </div>
+
+                    <!-- Uzávěrka - výrazně -->
+                    <div class="deadline-box" id="deadlineBox">
+                        <span class="deadline-label">Uzávěrka nabídek</span>
+                        <span class="deadline-value" id="val-uzaverka"></span>
+                    </div>
+                </fieldset>
+
+                <!-- Formulář nabídky -->
+                <form id="offerForm" class="form" novalidate>
+                    <fieldset class="form-section">
+                        <legend class="form-section-title">Vaše nabídka</legend>
+
+                        <!-- Cenová nabídka -->
+                        <div class="form-group">
+                            <label for="cenova_nabidka" class="form-label">
+                                Cenová nabídka <span class="required">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <input
+                                    type="number"
+                                    id="cenova_nabidka"
+                                    name="cenova_nabidka"
+                                    class="form-input"
+                                    required
+                                    min="1"
+                                    step="0.01"
+                                    placeholder="Zadejte cenu v Kč"
+                                    aria-required="true"
+                                    aria-invalid="false"
+                                    aria-describedby="cena-error cena-hint"
+                                >
+                                <span class="input-suffix">Kč</span>
+                            </div>
+                            <span id="cena-hint" class="form-hint">Celková cena v Kč bez DPH</span>
+                            <span id="cena-error" class="form-error" role="alert"></span>
+                        </div>
+
+                        <!-- Poznámka -->
+                        <div class="form-group">
+                            <label for="nabidka_poznamka" class="form-label">
+                                Poznámka <span class="optional">(volitelné)</span>
+                            </label>
+                            <textarea
+                                id="nabidka_poznamka"
+                                name="nabidka_poznamka"
+                                class="form-input form-textarea"
+                                maxlength="1000"
+                                rows="4"
+                                placeholder="Podmínky dodání, minimální odběr, vlastní termín..."
+                                aria-describedby="nabidka-poznamka-hint nabidka-poznamka-counter"
+                            ></textarea>
+                            <div class="form-hint-row">
+                                <span id="nabidka-poznamka-hint" class="form-hint">Maximálně 1000 znaků</span>
+                                <span id="nabidka-poznamka-counter" class="form-counter">0/1000</span>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Submit -->
+                    <button type="submit" class="btn btn-primary" id="submitBtn" aria-label="Odeslat nabídku">
+                        <span class="btn-text">Odeslat nabídku</span>
+                        <span class="btn-loader" aria-hidden="true" style="display: none;">
+                            <span class="spinner"></span>
+                            Odesílám...
+                        </span>
+                    </button>
+
+                    <p class="form-footer">
+                        Nabídku můžete do uzávěrky kdykoliv změnit opětovným odesláním.
+                    </p>
+                </form>
+            </div>
+
+            <!-- Stav: Úspěch po odeslání -->
+            <div id="successCard" class="form-card" style="display: none; text-align: center;">
+                <div class="success-icon">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                </div>
+                <h1 class="success-title">Děkujeme!</h1>
+                <p class="success-perex">Vaše nabídka byla úspěšně odeslána.</p>
+                <div class="info-box">
+                    <div class="info-box-icon">&#9432;</div>
+                    <div class="info-box-content">
+                        <strong>Nabídku můžete do uzávěrky kdykoliv změnit.</strong>
+                        <p>Stačí se vrátit na tento odkaz a odeslat nabídku znovu.</p>
+                    </div>
+                </div>
+                <div class="success-actions">
+                    <button class="btn btn-primary" id="editOfferBtn">
+                        Upravit nabídku
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="nabidka.js"></script>
+</body>
+</html>
