@@ -80,6 +80,7 @@ body {
     color: var(--white);
     padding: var(--spacing-sm) 0;
     box-shadow: var(--shadow-small);
+    border-bottom: 3px solid var(--orange-primary);
 }
 
 .header-container {
@@ -232,6 +233,7 @@ body {
     border-radius: var(--radius-md);
     padding: var(--spacing-lg);
     box-shadow: var(--shadow-medium);
+    border-top: 4px solid var(--orange-primary);
 }
 
 .form-title {
@@ -625,6 +627,7 @@ body {
     border-radius: var(--radius-md);
     padding: var(--spacing-xl);
     box-shadow: var(--shadow-medium);
+    border-top: 4px solid var(--green-success);
     text-align: center;
     max-width: 600px;
     margin: 0 auto;
@@ -823,6 +826,73 @@ body {
     .form-card {
         padding: var(--spacing-sm);
     }
+}
+
+/* ============================================
+   Footer
+   ============================================ */
+.footer {
+    background: var(--navy-dark);
+    color: var(--white);
+    padding: var(--spacing-md) var(--spacing-sm);
+    text-align: center;
+    font-size: 13px;
+    border-top: 3px solid var(--orange-primary);
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+}
+
+.footer-text {
+    opacity: 0.7;
+}
+
+.footer-links {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.footer-links a {
+    color: var(--orange-primary);
+    text-decoration: none;
+    font-size: 13px;
+    transition: opacity 0.2s;
+}
+
+.footer-links a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* ============================================
+   Card contact info (error/expired pages)
+   ============================================ */
+.card-contact {
+    margin-top: var(--spacing-md);
+    color: var(--text-secondary);
+}
+
+.card-contact a {
+    color: var(--orange-primary);
+    text-decoration: none;
+}
+
+.card-contact a:hover {
+    text-decoration: underline;
 }
 
 /* ============================================
