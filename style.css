@@ -96,20 +96,13 @@ body {
 
 .logo-section {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    align-items: center;
 }
 
-.logo {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--white);
-}
-
-.tagline {
-    font-size: 12px;
-    color: var(--orange-primary);
-    font-weight: 400;
+.logo-img {
+    height: 40px;
+    width: auto;
+    display: block;
 }
 
 .contact-section {
