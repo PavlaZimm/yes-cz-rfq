@@ -6,7 +6,7 @@
 // KONFIGURACE
 // ============================================
 const NABIDKA_CONFIG = {
-    WEBHOOK_URL: 'https://hook.eu1.make.com/PLACEHOLDER_NABIDKA',
+    WEBHOOK_URL: 'https://hook.eu1.make.com/fv734p7p8aar5yfenpybsf9dl62kj5j9',
     TIMEOUT: 10000,
     DEBUG: false
 };
