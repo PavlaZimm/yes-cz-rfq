@@ -67,14 +67,6 @@
                             <span class="detail-label">Značka</span>
                             <span class="detail-value" id="val-znacka"></span>
                         </div>
-                        <div class="detail-item detail-item-full" id="detail-produkty">
-                            <span class="detail-label">Produkty</span>
-                            <ul class="detail-products-list" id="val-produkty"></ul>
-                        </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Požadovaný termín dodání</span>
-                            <span class="detail-value" id="val-termin"></span>
-                        </div>
                     </div>
 
                     <!-- Uzávěrka -->
@@ -89,29 +81,16 @@
                     <fieldset class="form-section">
                         <legend class="form-section-title">Vaše nabídka</legend>
 
-                        <!-- Cenová nabídka -->
+                        <!-- Per-product pricing -->
                         <div class="form-group">
-                            <label for="cenova_nabidka" class="form-label">
-                                Cenová nabídka <span class="required">*</span>
+                            <label class="form-label">
+                                Cena za položky <span class="required">*</span>
                             </label>
-                            <div class="input-wrapper">
-                                <input
-                                    type="number"
-                                    id="cenova_nabidka"
-                                    name="cenova_nabidka"
-                                    class="form-input"
-                                    required
-                                    min="0.01"
-                                    step="0.01"
-                                    placeholder="15000"
-                                    aria-required="true"
-                                    aria-invalid="false"
-                                    aria-describedby="cena-error cena-hint"
-                                >
-                                <span class="input-suffix">EUR</span>
+                            <div id="product-prices" class="product-prices-list">
+                                <!-- Dynamicky generované řádky s produkty a cenami -->
                             </div>
-                            <span id="cena-hint" class="form-hint">Celková cena v EUR bez DPH, včetně dopravy na sklad: Spark Invest, Kozomín 501, 277 45 Kozomín, Česká republika</span>
-                            <span id="cena-error" class="form-error" role="alert"></span>
+                            <span id="prices-hint" class="form-hint">Cena v EUR bez DPH, včetně dopravy na sklad: Spark Invest, Kozomín 501, 277 45 Kozomín</span>
+                            <span id="prices-error" class="form-error" role="alert"></span>
                         </div>
 
                         <!-- Poznámka -->
