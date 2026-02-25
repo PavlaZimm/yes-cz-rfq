@@ -27,11 +27,11 @@ const btnLoader = submitBtn.querySelector('.btn-loader');
 const declineBtn = document.getElementById('declineBtn');
 
 // Form inputs
-const cenaInput = document.getElementById('cenova_nabidka');
 const poznamkaInput = document.getElementById('nabidka_poznamka');
+const productPricesContainer = document.getElementById('product-prices');
 
 // Error elements
-const cenaError = document.getElementById('cena-error');
+const pricesError = document.getElementById('prices-error');
 
 // ============================================
 // URL PARAMETRY
@@ -46,6 +46,9 @@ const params = {
     dodavatel: urlParams.get('dodavatel'),
     uzaverka: urlParams.get('uzaverka')
 };
+
+// Parsed products (shared between render and submit)
+var parsedProducts = [];
 
 // ============================================
 // UTILITY FUNKCE
@@ -79,39 +82,19 @@ function showError(message) {
     errorAlert.style.display = 'flex';
 }
 
-function showFieldError(errorEl, input, message) {
+function showFieldError(errorEl, message) {
     errorEl.textContent = message;
     errorEl.classList.add('active');
-    input.setAttribute('aria-invalid', 'true');
-    input.style.borderColor = 'var(--red-error)';
 }
 
-function clearFieldError(errorEl, input) {
+function clearFieldError(errorEl) {
     errorEl.textContent = '';
     errorEl.classList.remove('active');
-    input.setAttribute('aria-invalid', 'false');
-    input.style.borderColor = '';
-}
-
-// ============================================
-// VALIDACE
-// ============================================
-
-function validateCena(value) {
-    if (!value) {
-        return 'Cenová nabídka je povinná a musí být větší než 0.';
-    }
-    var num = parseFloat(value);
-    if (isNaN(num) || num <= 0) {
-        return 'Cenová nabídka je povinná a musí být větší než 0.';
-    }
-    return null;
 }
 
 function isExpired(uzaverkaStr) {
     if (!uzaverkaStr) return false;
     try {
-        // Uzávěrka je do 12:00 daného dne
         var uzaverka = new Date(uzaverkaStr + 'T12:00:00');
         var now = new Date();
         return now > uzaverka;
@@ -125,9 +108,6 @@ function isExpired(uzaverkaStr) {
 // ============================================
 
 function parseProducts() {
-    // Produkty mohou přijít jako:
-    // 1. JSON string v parametru "produkty"
-    // 2. Textový řetězec v "specifikace" (starý formát)
     var products = [];
 
     if (params.produkty) {
@@ -137,18 +117,16 @@ function parseProducts() {
                 products = parsed;
             }
         } catch (e) {
-            // Zkusit jako text
             log('Products parse error, trying text:', e);
         }
     }
 
-    // Fallback: specifikace jako text (řádky "Panel XY - 30 ks")
+    // Fallback: specifikace jako text
     if (products.length === 0 && params.specifikace) {
         var lines = decodeURIComponent(params.specifikace).split('\n');
         lines.forEach(function(line) {
             line = line.trim();
             if (!line) return;
-            // Zkusit parsovat "specifikace - XX ks"
             var match = line.match(/^(.+?)\s*-\s*(\d+)\s*ks$/i);
             if (match) {
                 products.push({
@@ -181,37 +159,108 @@ function renderDetail() {
     var znackaEl = document.getElementById('val-znacka');
     znackaEl.textContent = params.znacka ? decodeURIComponent(params.znacka) : '—';
 
-    // Produkty
-    var produktyEl = document.getElementById('val-produkty');
-    var products = parseProducts();
-    if (products.length > 0) {
-        products.forEach(function(p) {
-            var li = document.createElement('li');
-            var text = escapeHtml(p.specification || p.specifikace || '');
-            var qty = p.quantity || p.pocet_kusu;
-            if (qty) {
-                text += ' — <strong>' + qty + ' kusů</strong>';
-            }
-            li.innerHTML = text;
-            produktyEl.appendChild(li);
-        });
-    } else {
-        var li = document.createElement('li');
-        li.textContent = '—';
-        produktyEl.appendChild(li);
-    }
-
-    // Termín dodání
-    var terminEl = document.getElementById('val-termin');
-    terminEl.textContent = params.termin ? formatCzechDate(params.termin) : '—';
-
-    // Uzávěrka - s časem do 12:00
+    // Uzávěrka
     var uzaverkaEl = document.getElementById('val-uzaverka');
     if (params.uzaverka) {
         uzaverkaEl.textContent = formatCzechDate(params.uzaverka) + ' do 12:00';
     } else {
         uzaverkaEl.textContent = '—';
     }
+
+    // Produkty s cenami
+    parsedProducts = parseProducts();
+    renderProductPrices();
+}
+
+// ============================================
+// PRODUKTY S CENAMI
+// ============================================
+
+function renderProductPrices() {
+    productPricesContainer.innerHTML = '';
+
+    if (parsedProducts.length === 0) {
+        var emptyRow = document.createElement('div');
+        emptyRow.className = 'product-price-row';
+        emptyRow.innerHTML = '<span class="product-price-label">Žádné produkty</span>';
+        productPricesContainer.appendChild(emptyRow);
+        return;
+    }
+
+    parsedProducts.forEach(function(product, index) {
+        var spec = product.specification || product.specifikace || '';
+        var qty = product.quantity || product.pocet_kusu;
+
+        var row = document.createElement('div');
+        row.className = 'product-price-row';
+
+        var label = document.createElement('div');
+        label.className = 'product-price-label';
+        var labelText = escapeHtml(spec);
+        if (qty) {
+            labelText += ' <span class="product-price-qty">' + qty + ' ks</span>';
+        }
+        label.innerHTML = labelText;
+
+        var inputWrapper = document.createElement('div');
+        inputWrapper.className = 'input-wrapper product-price-input-wrapper';
+
+        var input = document.createElement('input');
+        input.type = 'number';
+        input.className = 'form-input product-price-input';
+        input.placeholder = '0.00';
+        input.min = '0.01';
+        input.step = '0.01';
+        input.required = true;
+        input.setAttribute('data-index', index);
+        input.setAttribute('aria-label', 'Cena za ' + spec);
+
+        var suffix = document.createElement('span');
+        suffix.className = 'input-suffix';
+        suffix.textContent = 'EUR';
+
+        inputWrapper.appendChild(input);
+        inputWrapper.appendChild(suffix);
+
+        row.appendChild(label);
+        row.appendChild(inputWrapper);
+
+        productPricesContainer.appendChild(row);
+
+        // Clear error on input
+        input.addEventListener('input', function() {
+            clearFieldError(pricesError);
+            input.style.borderColor = '';
+        });
+    });
+}
+
+function getPriceInputs() {
+    return productPricesContainer.querySelectorAll('.product-price-input');
+}
+
+// ============================================
+// VALIDACE
+// ============================================
+
+function validatePrices() {
+    var inputs = getPriceInputs();
+    var allValid = true;
+
+    inputs.forEach(function(input) {
+        var value = parseFloat(input.value);
+        if (!input.value || isNaN(value) || value <= 0) {
+            input.style.borderColor = 'var(--red-error)';
+            allValid = false;
+        } else {
+            input.style.borderColor = '';
+        }
+    });
+
+    if (!allValid) {
+        return 'Vyplňte cenu u všech položek. Cena musí být větší než 0.';
+    }
+    return null;
 }
 
 // ============================================
@@ -219,20 +268,22 @@ function renderDetail() {
 // ============================================
 
 function setLoadingState(loading) {
+    var priceInputs = getPriceInputs();
+
     if (loading) {
         submitBtn.disabled = true;
         btnText.style.display = 'none';
         btnLoader.style.display = 'flex';
-        cenaInput.disabled = true;
         poznamkaInput.disabled = true;
         declineBtn.disabled = true;
+        priceInputs.forEach(function(input) { input.disabled = true; });
     } else {
         submitBtn.disabled = false;
         btnText.style.display = 'block';
         btnLoader.style.display = 'none';
-        cenaInput.disabled = false;
         poznamkaInput.disabled = false;
         declineBtn.disabled = false;
+        priceInputs.forEach(function(input) { input.disabled = false; });
     }
 }
 
@@ -241,12 +292,13 @@ function setLoadingState(loading) {
 // ============================================
 
 async function submitOffer() {
-    clearFieldError(cenaError, cenaInput);
+    clearFieldError(pricesError);
 
-    var error = validateCena(cenaInput.value);
+    var error = validatePrices();
     if (error) {
-        showFieldError(cenaError, cenaInput, error);
-        cenaInput.focus();
+        showFieldError(pricesError, error);
+        var firstEmpty = productPricesContainer.querySelector('.product-price-input[style*="red"]');
+        if (firstEmpty) firstEmpty.focus();
         return;
     }
 
@@ -257,9 +309,20 @@ async function submitOffer() {
         return;
     }
 
+    // Sestavit produkty s cenami
+    var priceInputs = getPriceInputs();
+    var products = [];
+    parsedProducts.forEach(function(product, index) {
+        products.push({
+            specification: product.specification || product.specifikace || '',
+            quantity: product.quantity || product.pocet_kusu || null,
+            price: parseFloat(priceInputs[index].value)
+        });
+    });
+
     var data = {
         record_id: params.record_id,
-        cenova_nabidka: parseFloat(cenaInput.value),
+        products: products,
         poznamka: poznamkaInput.value.trim() || '',
         datum_odeslani: new Date().toISOString()
     };
@@ -371,10 +434,6 @@ offerForm.addEventListener('submit', function (e) {
 
 declineBtn.addEventListener('click', function () {
     declineOffer();
-});
-
-cenaInput.addEventListener('input', function () {
-    clearFieldError(cenaError, cenaInput);
 });
 
 // Počítadlo znaků poznámky
