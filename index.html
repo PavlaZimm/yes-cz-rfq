@@ -101,29 +101,43 @@
                             </div>
                         </div>
 
-                        <!-- Specifikace produktů -->
+                        <!-- Dynamické produkty -->
                         <div class="form-group">
-                            <label for="specifikace" class="form-label">
-                                Specifikace produktů <span class="required">*</span>
+                            <label class="form-label">
+                                Produkty <span class="required">*</span>
                             </label>
-                            <textarea
-                                id="specifikace"
-                                name="specifikace"
-                                class="form-input form-textarea form-textarea-large"
-                                required
-                                minlength="5"
-                                maxlength="2000"
-                                rows="6"
-                                placeholder="Uveďte produkty, které chcete poptat, např.:&#10;&#10;Panel XYZ 400W - 50 ks&#10;Panel ABC 500W - 30 ks&#10;Střídač DEF 10kW - 5 ks"
-                                aria-required="true"
-                                aria-invalid="false"
-                                aria-describedby="specifikace-error specifikace-hint specifikace-counter"
-                            ></textarea>
-                            <div class="form-hint-row">
-                                <span id="specifikace-hint" class="form-hint">Zadejte produkty, typy, množství - každý na nový řádek</span>
-                                <span id="specifikace-counter" class="form-counter">0/2000</span>
+                            <div id="produkty-list" class="produkty-list">
+                                <!-- Výchozí řádka -->
+                                <div class="produkt-row" data-index="0">
+                                    <div class="produkt-fields">
+                                        <input
+                                            type="text"
+                                            class="form-input produkt-spec"
+                                            placeholder="Specifikace produktu (např. Panel XYZ 400W)"
+                                            required
+                                            maxlength="500"
+                                            aria-label="Specifikace produktu 1"
+                                        >
+                                        <div class="input-wrapper produkt-qty-wrapper">
+                                            <input
+                                                type="number"
+                                                class="form-input produkt-qty"
+                                                placeholder="Ks"
+                                                required
+                                                min="1"
+                                                step="1"
+                                                aria-label="Počet kusů produktu 1"
+                                            >
+                                            <span class="input-suffix">ks</span>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="produkt-remove-btn" aria-label="Odebrat produkt" title="Odebrat produkt" style="display: none;">×</button>
+                                </div>
                             </div>
-                            <span id="specifikace-error" class="form-error" role="alert"></span>
+                            <button type="button" id="addProduktBtn" class="btn-add-produkt">
+                                + Přidat další produkt stejné značky
+                            </button>
+                            <span id="produkty-error" class="form-error" role="alert"></span>
                         </div>
                     </fieldset>
 
@@ -131,59 +145,10 @@
                     <fieldset class="form-section">
                         <legend class="form-section-title">Dodání</legend>
 
-                        <div class="form-row">
-                            <!-- Množství -->
-                            <div class="form-group">
-                                <label for="mnozstvi" class="form-label">
-                                    Celkové množství <span class="required">*</span>
-                                </label>
-                                <div class="input-wrapper">
-                                    <input
-                                        type="number"
-                                        id="mnozstvi"
-                                        name="mnozstvi"
-                                        class="form-input"
-                                        required
-                                        min="1"
-                                        step="1"
-                                        placeholder="10"
-                                        aria-required="true"
-                                        aria-invalid="false"
-                                        aria-describedby="mnozstvi-error mnozstvi-hint"
-                                    >
-                                    <span class="input-suffix">ks</span>
-                                </div>
-                                <span id="mnozstvi-hint" class="form-hint">Celkový počet kusů</span>
-                                <span id="mnozstvi-error" class="form-error" role="alert"></span>
-                            </div>
-
-                            <!-- PSČ -->
-                            <div class="form-group">
-                                <label for="psc_dodani" class="form-label">
-                                    PSČ místa dodání <span class="required">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    id="psc_dodani"
-                                    name="psc_dodani"
-                                    class="form-input"
-                                    required
-                                    pattern="[0-9]{5}"
-                                    maxlength="6"
-                                    placeholder="120 00"
-                                    aria-required="true"
-                                    aria-invalid="false"
-                                    aria-describedby="psc-error psc-hint"
-                                >
-                                <span id="psc-hint" class="form-hint">Formát: 120 00</span>
-                                <span id="psc-error" class="form-error" role="alert"></span>
-                            </div>
-                        </div>
-
-                        <!-- Termín dodání -->
+                        <!-- Požadovaný termín dodání -->
                         <div class="form-group">
                             <label for="pozadovany_termin" class="form-label">
-                                Termín dodání <span class="required">*</span>
+                                Požadovaný termín dodání <span class="required">*</span>
                             </label>
                             <input
                                 type="date"
@@ -197,6 +162,32 @@
                             >
                             <span id="termin-hint" class="form-hint">Nejdříve zítřek, maximálně 90 dní od dneška</span>
                             <span id="termin-error" class="form-error" role="alert"></span>
+                        </div>
+
+                        <!-- Termín ukončení aukce - Radio buttons -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                Termín ukončení aukce <span class="required">*</span>
+                            </label>
+                            <div class="radio-group" id="aukceRadioGroup">
+                                <label class="radio-option">
+                                    <input type="radio" name="termin_aukce" value="3" required>
+                                    <span class="radio-custom"></span>
+                                    <span class="radio-label">Tři pracovní dny</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="termin_aukce" value="5">
+                                    <span class="radio-custom"></span>
+                                    <span class="radio-label">Pět pracovních dnů</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="termin_aukce" value="7">
+                                    <span class="radio-custom"></span>
+                                    <span class="radio-label">Sedm pracovních dnů</span>
+                                </label>
+                            </div>
+                            <span id="aukce-hint" class="form-hint">Systém automaticky spočítá deadline od dneška</span>
+                            <span id="aukce-error" class="form-error" role="alert"></span>
                         </div>
                     </fieldset>
 

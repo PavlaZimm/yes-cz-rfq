@@ -972,6 +972,176 @@ body {
 }
 
 /* ============================================
+   Dynamic Products
+   ============================================ */
+.produkty-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.produkt-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+    animation: slideIn 0.2s ease-out;
+}
+
+.produkt-fields {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 140px;
+    gap: var(--spacing-xs);
+}
+
+.produkt-qty-wrapper {
+    position: relative;
+}
+
+.produkt-qty-wrapper .input-suffix {
+    right: 12px;
+}
+
+.produkt-remove-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 44px;
+    background: none;
+    border: 2px solid #E5E7EB;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.produkt-remove-btn:hover {
+    border-color: var(--red-error);
+    color: var(--red-error);
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.btn-add-produkt {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: 10px var(--spacing-sm);
+    background: none;
+    border: 2px dashed #D1D5DB;
+    border-radius: var(--radius-sm);
+    color: var(--orange-primary);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: var(--spacing-xs);
+}
+
+.btn-add-produkt:hover {
+    border-color: var(--orange-primary);
+    background: rgba(255, 107, 53, 0.04);
+}
+
+/* ============================================
+   Radio Buttons (Termín aukce)
+   ============================================ */
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px var(--spacing-sm);
+    border: 2px solid #E5E7EB;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.radio-option:hover {
+    border-color: var(--orange-primary);
+    background: rgba(255, 107, 53, 0.04);
+}
+
+.radio-option:has(input:checked) {
+    border-color: var(--orange-primary);
+    background: rgba(255, 107, 53, 0.08);
+}
+
+.radio-option input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #D1D5DB;
+    border-radius: 50%;
+    flex-shrink: 0;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.radio-option input[type="radio"]:checked {
+    border-color: var(--orange-primary);
+    background: var(--orange-primary);
+}
+
+.radio-option input[type="radio"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: var(--white);
+    border-radius: 50%;
+}
+
+.radio-label {
+    font-size: var(--font-size-body);
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+    .produkt-fields {
+        grid-template-columns: 1fr 100px;
+    }
+}
+
+@media (max-width: 420px) {
+    .produkt-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .produkt-row {
+        position: relative;
+    }
+
+    .produkt-remove-btn {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+        border: none;
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--red-error);
+        border-radius: 50%;
+    }
+}
+
+/* ============================================
    Accessibility
    ============================================ */
 /* Focus indicators */
