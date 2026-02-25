@@ -7,16 +7,13 @@
 // ============================================
 const CONFIG = {
     WEBHOOK_URL: 'https://hook.eu1.make.com/1f7yqjfjkbxjccqgkyychhl1jo73783l',
-    // URL pro načtení značek z Airtable (Make.com webhook nebo vlastní API)
-    // Pokud je prázdný, použijí se fallback značky
     BRANDS_API_URL: '',
     TIMEOUT: 10000,
     MIN_DATE_OFFSET: 1,
     MAX_DATE_OFFSET: 90,
     SUCCESS_URL: 'success.html',
     DEBUG: true,
-    // Fallback značky - použijí se, pokud není nastaveno BRANDS_API_URL
-    // nebo pokud načtení z API selže
+    MAX_PRODUCTS: 20,
     FALLBACK_BRANDS: [
         'Aiko',
         'Canadian Solar',
@@ -46,6 +43,7 @@ let brands = [];
 let highlightedIndex = -1;
 let selectedBrand = '';
 let submissionCount = 0;
+let produktCounter = 1; // počítadlo pro unikátní indexy produktů
 
 // ============================================
 // DOM ELEMENTS
@@ -64,9 +62,6 @@ const submitAnotherBtn = document.getElementById('submitAnotherBtn');
 const inputs = {
     znackaInput: document.getElementById('znacka-input'),
     znacka: document.getElementById('znacka'),
-    specifikace: document.getElementById('specifikace'),
-    mnozstvi: document.getElementById('mnozstvi'),
-    psc: document.getElementById('psc_dodani'),
     termin: document.getElementById('pozadovany_termin'),
     jmeno: document.getElementById('zakaznik_jmeno'),
     email: document.getElementById('zakaznik_email'),
@@ -79,13 +74,16 @@ const znackaDropdown = document.getElementById('znackaDropdown');
 const znackaList = document.getElementById('znacka-list');
 const znackaLoading = document.getElementById('znacka-loading');
 
+// Produkty elements
+const produktyList = document.getElementById('produkty-list');
+const addProduktBtn = document.getElementById('addProduktBtn');
+
 // Error elements
 const errorElements = {
     znacka: document.getElementById('znacka-error'),
-    specifikace: document.getElementById('specifikace-error'),
-    mnozstvi: document.getElementById('mnozstvi-error'),
-    psc: document.getElementById('psc-error'),
+    produkty: document.getElementById('produkty-error'),
     termin: document.getElementById('termin-error'),
+    aukce: document.getElementById('aukce-error'),
     jmeno: document.getElementById('jmeno-error'),
     email: document.getElementById('email-error'),
     telefon: document.getElementById('telefon-error')
@@ -119,10 +117,12 @@ function showFieldError(fieldName, message) {
         errorEl.classList.add('active');
     }
 
-    // Determine input element
     let input;
     if (fieldName === 'znacka') {
         input = inputs.znackaInput;
+    } else if (fieldName === 'produkty' || fieldName === 'aukce') {
+        // No single input to highlight
+        return;
     } else {
         input = inputs[fieldName];
     }
@@ -143,6 +143,8 @@ function clearFieldError(fieldName) {
     let input;
     if (fieldName === 'znacka') {
         input = inputs.znackaInput;
+    } else if (fieldName === 'produkty' || fieldName === 'aukce') {
+        return;
     } else {
         input = inputs[fieldName];
     }
@@ -165,7 +167,6 @@ function clearAllErrors() {
 // ============================================
 
 async function loadBrands() {
-    // Pokud není API URL, použij fallback
     if (!CONFIG.BRANDS_API_URL) {
         brands = CONFIG.FALLBACK_BRANDS.slice().sort();
         log('Použity fallback značky:', brands.length);
@@ -190,10 +191,6 @@ async function loadBrands() {
 
         const data = await response.json();
 
-        // Podporuje formáty:
-        // 1. Pole stringů: ["Brand A", "Brand B"]
-        // 2. Pole objektů: [{ name: "Brand A" }, { name: "Brand B" }]
-        // 3. Objekt s polem: { brands: ["Brand A", ...] } nebo { records: [...] }
         if (Array.isArray(data)) {
             brands = data.map(item =>
                 typeof item === 'string' ? item : (item.name || item.Name || item.znacka || '')
@@ -291,15 +288,15 @@ function selectBrand(brand) {
     inputs.znacka.value = brand;
     clearFieldError('znacka');
     closeDropdown();
-    // Focus next field
-    inputs.specifikace.focus();
+    // Focus first product spec field
+    const firstSpec = produktyList.querySelector('.produkt-spec');
+    if (firstSpec) firstSpec.focus();
 }
 
 function navigateDropdown(direction) {
     const items = znackaList.querySelectorAll('li[role="option"]');
     if (items.length === 0) return;
 
-    // Remove old highlight
     if (highlightedIndex >= 0 && items[highlightedIndex]) {
         items[highlightedIndex].classList.remove('highlighted');
     }
@@ -326,9 +323,7 @@ inputs.znackaInput.addEventListener('input', () => {
 });
 
 inputs.znackaInput.addEventListener('blur', () => {
-    // Delay to allow mousedown on list items
     setTimeout(() => {
-        // If user typed something but didn't select from list, try to match
         const typed = inputs.znackaInput.value.trim();
         if (typed && !selectedBrand) {
             const match = brands.find(b => b.toLowerCase() === typed.toLowerCase());
@@ -338,7 +333,6 @@ inputs.znackaInput.addEventListener('blur', () => {
         }
         closeDropdown();
 
-        // Validate
         const error = validateZnacka();
         if (error) {
             showFieldError('znacka', error);
@@ -372,12 +366,128 @@ inputs.znackaInput.addEventListener('keydown', (e) => {
     }
 });
 
-// Close dropdown when clicking outside
 document.addEventListener('click', (e) => {
     if (!znackaDropdown.contains(e.target)) {
         closeDropdown();
     }
 });
+
+// ============================================
+// DYNAMICKÉ PRODUKTY
+// ============================================
+
+function addProduktRow() {
+    const rows = produktyList.querySelectorAll('.produkt-row');
+    if (rows.length >= CONFIG.MAX_PRODUCTS) {
+        showErrorAlert('Maximální počet produktů je ' + CONFIG.MAX_PRODUCTS);
+        return;
+    }
+
+    produktCounter++;
+    const newRow = document.createElement('div');
+    newRow.className = 'produkt-row';
+    newRow.setAttribute('data-index', produktCounter);
+    newRow.innerHTML =
+        '<div class="produkt-fields">' +
+            '<input type="text" class="form-input produkt-spec" ' +
+                'placeholder="Specifikace produktu (např. Panel XYZ 400W)" ' +
+                'required maxlength="500" ' +
+                'aria-label="Specifikace produktu ' + (produktCounter + 1) + '">' +
+            '<div class="input-wrapper produkt-qty-wrapper">' +
+                '<input type="number" class="form-input produkt-qty" ' +
+                    'placeholder="Ks" required min="1" step="1" ' +
+                    'aria-label="Počet kusů produktu ' + (produktCounter + 1) + '">' +
+                '<span class="input-suffix">ks</span>' +
+            '</div>' +
+        '</div>' +
+        '<button type="button" class="produkt-remove-btn" aria-label="Odebrat produkt" title="Odebrat produkt">×</button>';
+
+    produktyList.appendChild(newRow);
+    updateRemoveButtons();
+    clearFieldError('produkty');
+
+    // Focus new row's spec input
+    const newSpec = newRow.querySelector('.produkt-spec');
+    if (newSpec) newSpec.focus();
+
+    log('Přidán produkt, celkem:', produktyList.querySelectorAll('.produkt-row').length);
+}
+
+function removeProduktRow(row) {
+    row.remove();
+    updateRemoveButtons();
+    log('Odebrán produkt, celkem:', produktyList.querySelectorAll('.produkt-row').length);
+}
+
+function updateRemoveButtons() {
+    const rows = produktyList.querySelectorAll('.produkt-row');
+    rows.forEach(row => {
+        const btn = row.querySelector('.produkt-remove-btn');
+        if (btn) {
+            // Show remove button only if there are 2+ rows
+            btn.style.display = rows.length > 1 ? 'flex' : 'none';
+        }
+    });
+}
+
+function getProductsData() {
+    const rows = produktyList.querySelectorAll('.produkt-row');
+    const products = [];
+    rows.forEach(row => {
+        const spec = row.querySelector('.produkt-spec').value.trim();
+        const qty = row.querySelector('.produkt-qty').value;
+        if (spec || qty) {
+            products.push({
+                specifikace: spec,
+                pocet_kusu: qty ? parseInt(qty, 10) : 0
+            });
+        }
+    });
+    return products;
+}
+
+// Event delegation for remove buttons
+produktyList.addEventListener('click', (e) => {
+    const removeBtn = e.target.closest('.produkt-remove-btn');
+    if (removeBtn) {
+        const row = removeBtn.closest('.produkt-row');
+        removeProduktRow(row);
+    }
+});
+
+// Add product button
+addProduktBtn.addEventListener('click', () => {
+    addProduktRow();
+});
+
+// ============================================
+// TERMÍN UKONČENÍ AUKCE - VÝPOČET DEADLINE
+// ============================================
+
+function addBusinessDays(startDate, numDays) {
+    const result = new Date(startDate);
+    let added = 0;
+    while (added < numDays) {
+        result.setDate(result.getDate() + 1);
+        const dayOfWeek = result.getDay();
+        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            added++;
+        }
+    }
+    return result;
+}
+
+function getSelectedAukceDays() {
+    const selected = document.querySelector('input[name="termin_aukce"]:checked');
+    return selected ? parseInt(selected.value, 10) : null;
+}
+
+function calculateAukceDeadline() {
+    const days = getSelectedAukceDays();
+    if (!days) return null;
+    const deadline = addBusinessDays(new Date(), days);
+    return deadline.toISOString().split('T')[0]; // YYYY-MM-DD
+}
 
 // ============================================
 // VALIDAČNÍ FUNKCE
@@ -388,7 +498,6 @@ function validateZnacka() {
     if (!value) {
         return 'Vyberte značku ze seznamu';
     }
-    // Check if it's a valid brand from the list
     const isValid = brands.some(b => b.toLowerCase() === value.toLowerCase());
     if (!isValid) {
         return 'Vyberte platnou značku ze seznamu';
@@ -396,12 +505,62 @@ function validateZnacka() {
     return null;
 }
 
-function validateSpecifikace(value) {
-    if (!value || value.trim().length < 5) {
-        return 'Specifikace musí obsahovat alespoň 5 znaků';
+function validateProdukty() {
+    const rows = produktyList.querySelectorAll('.produkt-row');
+    let hasValidProduct = false;
+    let hasError = false;
+    let errorMsg = '';
+
+    rows.forEach((row, index) => {
+        const specInput = row.querySelector('.produkt-spec');
+        const qtyInput = row.querySelector('.produkt-qty');
+        const spec = specInput.value.trim();
+        const qty = qtyInput.value;
+
+        // Reset styling
+        specInput.style.borderColor = '';
+        qtyInput.style.borderColor = '';
+
+        if (!spec && !qty) {
+            // Empty row - mark as error if it's the only row
+            if (rows.length === 1) {
+                specInput.style.borderColor = 'var(--red-error)';
+                qtyInput.style.borderColor = 'var(--red-error)';
+                hasError = true;
+                errorMsg = 'Zadejte alespoň jeden produkt';
+            }
+            return;
+        }
+
+        if (!spec) {
+            specInput.style.borderColor = 'var(--red-error)';
+            hasError = true;
+            errorMsg = 'Vyplňte specifikaci u všech produktů';
+            return;
+        }
+
+        if (!qty || parseInt(qty, 10) < 1) {
+            qtyInput.style.borderColor = 'var(--red-error)';
+            hasError = true;
+            errorMsg = 'Zadejte počet kusů u všech produktů';
+            return;
+        }
+
+        hasValidProduct = true;
+    });
+
+    if (!hasValidProduct && !hasError) {
+        hasError = true;
+        errorMsg = 'Zadejte alespoň jeden produkt';
     }
-    if (value.length > 2000) {
-        return 'Specifikace může obsahovat maximálně 2000 znaků';
+
+    return hasError ? errorMsg : null;
+}
+
+function validateAukce() {
+    const selected = getSelectedAukceDays();
+    if (!selected) {
+        return 'Vyberte termín ukončení aukce';
     }
     return null;
 }
@@ -444,28 +603,6 @@ function validateTelefon(value) {
     return null;
 }
 
-function validateMnozstvi(value) {
-    const num = parseInt(value, 10);
-    if (!value || isNaN(num) || num < 1) {
-        return 'Množství musí být celé číslo větší než 0';
-    }
-    if (num !== parseFloat(value)) {
-        return 'Množství musí být celé číslo';
-    }
-    return null;
-}
-
-function validatePSC(value) {
-    if (!value) {
-        return 'Toto pole je povinné';
-    }
-    const digits = value.replace(/\s/g, '');
-    if (!/^\d{5}$/.test(digits)) {
-        return 'PSČ musí obsahovat přesně 5 číslic';
-    }
-    return null;
-}
-
 function validateTermin(value) {
     if (!value) {
         return 'Toto pole je povinné';
@@ -499,32 +636,18 @@ function validatePoznamka(value) {
 function validateForm() {
     clearAllErrors();
 
-    const values = {
-        znacka: null,
-        specifikace: inputs.specifikace.value.trim(),
-        jmeno: inputs.jmeno.value.trim(),
-        email: inputs.email.value.trim(),
-        telefon: inputs.telefon.value,
-        mnozstvi: inputs.mnozstvi.value,
-        psc: inputs.psc.value,
-        termin: inputs.termin.value,
-        poznamka: inputs.poznamka.value.trim()
-    };
-
     const errors = {
         znacka: validateZnacka(),
-        specifikace: validateSpecifikace(values.specifikace),
-        mnozstvi: validateMnozstvi(values.mnozstvi),
-        psc: validatePSC(values.psc),
-        termin: validateTermin(values.termin),
-        jmeno: validateJmeno(values.jmeno),
-        email: validateEmail(values.email),
-        telefon: validateTelefon(values.telefon),
-        poznamka: validatePoznamka(values.poznamka)
+        produkty: validateProdukty(),
+        termin: validateTermin(inputs.termin.value),
+        aukce: validateAukce(),
+        jmeno: validateJmeno(inputs.jmeno.value.trim()),
+        email: validateEmail(inputs.email.value.trim()),
+        telefon: validateTelefon(inputs.telefon.value)
     };
 
     let hasErrors = false;
-    let firstErrorField = null;
+    let firstErrorElement = null;
 
     log('Validace:', errors);
 
@@ -532,19 +655,23 @@ function validateForm() {
         if (errors[key]) {
             showFieldError(key, errors[key]);
             hasErrors = true;
-            if (!firstErrorField) {
+            if (!firstErrorElement) {
                 if (key === 'znacka') {
-                    firstErrorField = inputs.znackaInput;
+                    firstErrorElement = inputs.znackaInput;
+                } else if (key === 'produkty') {
+                    firstErrorElement = produktyList.querySelector('.produkt-spec');
+                } else if (key === 'aukce') {
+                    firstErrorElement = document.getElementById('aukceRadioGroup');
                 } else {
-                    firstErrorField = inputs[key];
+                    firstErrorElement = inputs[key];
                 }
             }
         }
     });
 
-    if (hasErrors && firstErrorField) {
-        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        firstErrorField.focus();
+    if (hasErrors && firstErrorElement) {
+        firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (firstErrorElement.focus) firstErrorElement.focus();
     }
 
     return !hasErrors;
@@ -581,27 +708,33 @@ function formatTelefon(value) {
     return formatted;
 }
 
-function formatPSC(value) {
-    let digits = value.replace(/\D/g, '');
-    digits = digits.substring(0, 5);
-
-    if (digits.length <= 3) {
-        return digits;
-    }
-    return digits.substring(0, 3) + ' ' + digits.substring(3, 5);
-}
-
 function preprocessData() {
+    const products = getProductsData();
+
+    // Build specifikace string from products (for backward compatibility)
+    const specifikaceText = products.map(p =>
+        p.specifikace + ' - ' + p.pocet_kusu + ' ks'
+    ).join('\n');
+
+    // Calculate total quantity
+    const celkoveMnozstvi = products.reduce((sum, p) => sum + (p.pocet_kusu || 0), 0);
+
+    // Calculate auction deadline
+    const aukceDays = getSelectedAukceDays();
+    const uzaverka = calculateAukceDeadline();
+
     return {
         timestamp: new Date().toISOString(),
         znacka: inputs.znacka.value || inputs.znackaInput.value.trim(),
-        specifikace: inputs.specifikace.value.trim(),
+        produkty: products,
+        specifikace: specifikaceText,
+        celkove_mnozstvi: celkoveMnozstvi,
         zakaznik_jmeno: inputs.jmeno.value.trim(),
         zakaznik_email: inputs.email.value.trim(),
         zakaznik_telefon: inputs.telefon.value.replace(/\D/g, ''),
-        mnozstvi: parseInt(inputs.mnozstvi.value, 10),
-        psc_dodani: inputs.psc.value.replace(/\s/g, ''),
         pozadovany_termin: inputs.termin.value,
+        termin_aukce_dny: aukceDays,
+        uzaverka: uzaverka,
         poznamka: inputs.poznamka.value.trim() || '',
         formular_url: window.location.href,
         user_agent: navigator.userAgent
@@ -628,15 +761,6 @@ function setupDatePicker() {
 // POČÍTADLA ZNAKŮ
 // ============================================
 
-function updateSpecifikaceCounter() {
-    const counter = document.getElementById('specifikace-counter');
-    if (counter) {
-        const length = inputs.specifikace.value.length;
-        counter.textContent = length + '/2000';
-        counter.style.color = length > 2000 ? 'var(--red-error)' : 'var(--text-secondary)';
-    }
-}
-
 function updatePoznamkaCounter() {
     const counter = document.getElementById('poznamka-counter');
     if (counter) {
@@ -656,16 +780,17 @@ function setLoadingState(loading) {
         btnText.style.display = 'none';
         btnLoader.style.display = 'flex';
 
-        Object.values(inputs).forEach(input => {
-            if (input && input.type !== 'hidden') input.disabled = true;
+        // Disable all form inputs
+        form.querySelectorAll('input, textarea, button[type="button"]').forEach(el => {
+            el.disabled = true;
         });
     } else {
         submitBtn.disabled = false;
         btnText.style.display = 'block';
         btnLoader.style.display = 'none';
 
-        Object.values(inputs).forEach(input => {
-            if (input && input.type !== 'hidden') input.disabled = false;
+        form.querySelectorAll('input, textarea, button[type="button"]').forEach(el => {
+            el.disabled = false;
         });
     }
 }
@@ -679,8 +804,7 @@ function saveContactInfo() {
         const contact = {
             jmeno: inputs.jmeno.value.trim(),
             email: inputs.email.value.trim(),
-            telefon: inputs.telefon.value,
-            psc: inputs.psc.value
+            telefon: inputs.telefon.value
         };
         sessionStorage.setItem('rfq_contact', JSON.stringify(contact));
     } catch (e) {
@@ -696,7 +820,6 @@ function restoreContactInfo() {
             if (contact.jmeno) inputs.jmeno.value = contact.jmeno;
             if (contact.email) inputs.email.value = contact.email;
             if (contact.telefon) inputs.telefon.value = contact.telefon;
-            if (contact.psc) inputs.psc.value = contact.psc;
         }
     } catch (e) {
         // sessionStorage not available
@@ -753,11 +876,8 @@ async function submitForm() {
             throw new Error('Server error: ' + response.status + ' ' + errorText);
         }
 
-        // Uložit kontaktní údaje pro opakované odeslání
         saveContactInfo();
         submissionCount++;
-
-        // Zobrazit inline úspěch
         showInlineSuccess(data.znacka);
 
     } catch (error) {
@@ -783,10 +903,8 @@ async function submitForm() {
 // ============================================
 
 function showInlineSuccess(brandName) {
-    // Skrýt formulář
     formCard.style.display = 'none';
 
-    // Zobrazit success alert s názvem značky
     const successMsg = document.getElementById('successMessage');
     if (submissionCount > 1) {
         successMsg.textContent = 'Poptávka pro značku "' + brandName + '" byla odeslána (' + submissionCount + '. poptávka v této relaci).';
@@ -801,35 +919,57 @@ function showInlineSuccess(brandName) {
 }
 
 function resetForNewBrand() {
-    // Skrýt success alert
     successAlert.style.display = 'none';
-
-    // Zobrazit formulář
     formCard.style.display = 'block';
 
-    // Resetovat produktová pole
+    // Reset brand
     selectedBrand = '';
     inputs.znackaInput.value = '';
     inputs.znacka.value = '';
-    inputs.specifikace.value = '';
-    inputs.mnozstvi.value = '';
+
+    // Reset products - keep only one empty row
+    produktyList.innerHTML = '';
+    produktCounter = 0;
+    const initialRow = document.createElement('div');
+    initialRow.className = 'produkt-row';
+    initialRow.setAttribute('data-index', '0');
+    initialRow.innerHTML =
+        '<div class="produkt-fields">' +
+            '<input type="text" class="form-input produkt-spec" ' +
+                'placeholder="Specifikace produktu (např. Panel XYZ 400W)" ' +
+                'required maxlength="500" ' +
+                'aria-label="Specifikace produktu 1">' +
+            '<div class="input-wrapper produkt-qty-wrapper">' +
+                '<input type="number" class="form-input produkt-qty" ' +
+                    'placeholder="Ks" required min="1" step="1" ' +
+                    'aria-label="Počet kusů produktu 1">' +
+                '<span class="input-suffix">ks</span>' +
+            '</div>' +
+        '</div>' +
+        '<button type="button" class="produkt-remove-btn" aria-label="Odebrat produkt" title="Odebrat produkt" style="display: none;">×</button>';
+    produktyList.appendChild(initialRow);
+
+    // Reset delivery fields
     inputs.termin.value = '';
+    const radios = document.querySelectorAll('input[name="termin_aukce"]');
+    radios.forEach(r => { r.checked = false; });
+
+    // Reset note
     inputs.poznamka.value = '';
 
-    // Obnovit kontaktní údaje
+    // Restore contact info
     restoreContactInfo();
 
-    // Aktualizovat počítadla
-    updateSpecifikaceCounter();
+    // Update counters
     updatePoznamkaCounter();
 
-    // Vyčistit chyby
+    // Clear errors
     clearAllErrors();
 
-    // Aktualizovat date picker
+    // Update date picker
     setupDatePicker();
 
-    // Focus na značku
+    // Focus brand
     inputs.znackaInput.focus();
     formCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
@@ -847,7 +987,6 @@ form.addEventListener('submit', (e) => {
 
 // Fallback: click listener na submit button
 submitBtn.addEventListener('click', (e) => {
-    // Pokud button není type=submit nebo event nebubluje, zajistí odeslání
     if (e.target.closest('form') && !submitBtn.disabled) {
         log('Submit button clicked');
     }
@@ -859,12 +998,6 @@ submitAnotherBtn.addEventListener('click', () => {
 });
 
 // Real-time validace při blur
-inputs.specifikace.addEventListener('blur', () => {
-    const error = validateSpecifikace(inputs.specifikace.value.trim());
-    if (error) showFieldError('specifikace', error);
-    else clearFieldError('specifikace');
-});
-
 inputs.jmeno.addEventListener('blur', () => {
     const error = validateJmeno(inputs.jmeno.value.trim());
     if (error) showFieldError('jmeno', error);
@@ -883,18 +1016,6 @@ inputs.telefon.addEventListener('blur', () => {
     else clearFieldError('telefon');
 });
 
-inputs.mnozstvi.addEventListener('blur', () => {
-    const error = validateMnozstvi(inputs.mnozstvi.value);
-    if (error) showFieldError('mnozstvi', error);
-    else clearFieldError('mnozstvi');
-});
-
-inputs.psc.addEventListener('blur', () => {
-    const error = validatePSC(inputs.psc.value);
-    if (error) showFieldError('psc', error);
-    else clearFieldError('psc');
-});
-
 inputs.termin.addEventListener('blur', () => {
     const error = validateTermin(inputs.termin.value);
     if (error) showFieldError('termin', error);
@@ -906,31 +1027,28 @@ inputs.poznamka.addEventListener('blur', () => {
     if (error) showErrorAlert(error);
 });
 
-// Auto-formátování během psaní
+// Auto-formátování telefonu
 inputs.telefon.addEventListener('input', (e) => {
     e.target.value = formatTelefon(e.target.value);
     clearFieldError('telefon');
 });
 
-inputs.psc.addEventListener('input', (e) => {
-    e.target.value = formatPSC(e.target.value);
-    clearFieldError('psc');
-});
-
 // Počítadla znaků
-inputs.specifikace.addEventListener('input', () => {
-    updateSpecifikaceCounter();
-    clearFieldError('specifikace');
-});
-
 inputs.poznamka.addEventListener('input', () => {
     updatePoznamkaCounter();
 });
 
-// Clear error při psaní (pro pole bez speciálního handleru)
-['jmeno', 'email', 'mnozstvi'].forEach(key => {
+// Clear error při psaní
+['jmeno', 'email'].forEach(key => {
     inputs[key].addEventListener('input', () => {
         clearFieldError(key);
+    });
+});
+
+// Radio button clear error
+document.querySelectorAll('input[name="termin_aukce"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+        clearFieldError('aukce');
     });
 });
 
@@ -941,20 +1059,10 @@ inputs.poznamka.addEventListener('input', () => {
 async function init() {
     log('Initializing RFQ form...');
 
-    // Nastavit date picker
     setupDatePicker();
-
-    // Aktualizovat počítadla znaků
-    updateSpecifikaceCounter();
     updatePoznamkaCounter();
-
-    // Obnovit kontaktní údaje z předchozí relace
     restoreContactInfo();
-
-    // Načíst značky z API/fallback
     await loadBrands();
-
-    // Načíst značku z URL parametru
     loadBrandFromURL();
 
     log('RFQ form initialized, brands loaded:', brands.length);
@@ -975,7 +1083,6 @@ function loadBrandFromURL() {
     }
 }
 
-// Spustit při načtení DOM
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
 } else {
