@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Background circle -->
+  <circle cx="16" cy="16" r="16" fill="#1E3A5F"/>
+  <!-- Orange accent trapezoid above the Y, matching logo style -->
+  <polygon points="9,4 14,4 13,8 8,8" fill="#FF6B35"/>
+  <!-- Letter Y in white for contrast on navy -->
+  <text x="16" y="24" font-family="Arial, Helvetica, sans-serif" font-weight="700" font-size="20" fill="#FFFFFF" text-anchor="middle">y</text>
+  <!-- Orange dot accent, matching the logo's dot style -->
+  <circle cx="24" cy="22" r="2.5" fill="#FF6B35"/>
+</svg>
