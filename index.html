@@ -160,14 +160,14 @@
                                 aria-invalid="false"
                                 aria-describedby="termin-error termin-hint"
                             >
-                            <span id="termin-hint" class="form-hint">Nejdříve zítřek, maximálně 90 dní od dneška</span>
+                            <span id="termin-hint" class="form-hint">Nejdříve za týden od dneška</span>
                             <span id="termin-error" class="form-error" role="alert"></span>
                         </div>
 
-                        <!-- Termín ukončení aukce - Radio buttons -->
+                        <!-- Doba pro zadání nabídek - Radio buttons -->
                         <div class="form-group">
                             <label class="form-label">
-                                Termín ukončení aukce <span class="required">*</span>
+                                Doba pro zadání nabídek <span class="required">*</span>
                             </label>
                             <div class="radio-group" id="aukceRadioGroup">
                                 <label class="radio-option">
@@ -186,7 +186,7 @@
                                     <span class="radio-label">Sedm pracovních dnů</span>
                                 </label>
                             </div>
-                            <span id="aukce-hint" class="form-hint">Systém automaticky spočítá deadline od dneška</span>
+                            <span id="aukce-hint" class="form-hint">Systém automaticky spočítá deadline od dneška (do 12:00)</span>
                             <span id="aukce-error" class="form-error" role="alert"></span>
                         </div>
                     </fieldset>
@@ -195,30 +195,29 @@
                     <fieldset class="form-section">
                         <legend class="form-section-title">Kontaktní údaje</legend>
 
-                        <!-- Jméno a příjmení -->
-                        <div class="form-group">
-                            <label for="zakaznik_jmeno" class="form-label">
-                                Jméno a příjmení <span class="required">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                id="zakaznik_jmeno"
-                                name="zakaznik_jmeno"
-                                class="form-input"
-                                required
-                                minlength="2"
-                                maxlength="100"
-                                pattern="[A-Za-zÁáČčĎďÉéĚěÍíŇňÓóŘřŠšŤťÚúŮůÝýŽž\s]+"
-                                placeholder="Jan Novák"
-                                aria-required="true"
-                                aria-invalid="false"
-                                aria-describedby="jmeno-error jmeno-hint"
-                            >
-                            <span id="jmeno-hint" class="form-hint">Minimálně 2 znaky, pouze písmena a mezery</span>
-                            <span id="jmeno-error" class="form-error" role="alert"></span>
-                        </div>
+                        <div class="form-stack">
+                            <!-- Jméno a příjmení -->
+                            <div class="form-group">
+                                <label for="zakaznik_jmeno" class="form-label">
+                                    Jméno a příjmení <span class="required">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="zakaznik_jmeno"
+                                    name="zakaznik_jmeno"
+                                    class="form-input"
+                                    required
+                                    minlength="2"
+                                    maxlength="100"
+                                    pattern="[A-Za-zÁáČčĎďÉéĚěÍíŇňÓóŘřŠšŤťÚúŮůÝýŽž\s]+"
+                                    placeholder="Jan Novák"
+                                    aria-required="true"
+                                    aria-invalid="false"
+                                    aria-describedby="jmeno-error"
+                                >
+                                <span id="jmeno-error" class="form-error" role="alert"></span>
+                            </div>
 
-                        <div class="form-row">
                             <!-- Email -->
                             <div class="form-group">
                                 <label for="zakaznik_email" class="form-label">
@@ -253,9 +252,8 @@
                                     maxlength="17"
                                     aria-required="true"
                                     aria-invalid="false"
-                                    aria-describedby="telefon-error telefon-hint"
+                                    aria-describedby="telefon-error"
                                 >
-                                <span id="telefon-hint" class="form-hint">Formát: +420 123 456 789</span>
                                 <span id="telefon-error" class="form-error" role="alert"></span>
                             </div>
                         </div>

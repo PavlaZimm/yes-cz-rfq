@@ -292,6 +292,15 @@ body {
     gap: var(--spacing-md);
 }
 
+.form-row-3 {
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+.form-stack {
+    display: flex;
+    flex-direction: column;
+}
+
 .form-label {
     font-size: var(--font-size-label);
     font-weight: 500;

@@ -9,7 +9,7 @@ const CONFIG = {
     WEBHOOK_URL: 'https://hook.eu1.make.com/1f7yqjfjkbxjccqgkyychhl1jo73783l',
     BRANDS_API_URL: '',
     TIMEOUT: 10000,
-    MIN_DATE_OFFSET: 1,
+    MIN_DATE_OFFSET: 7,
     MAX_DATE_OFFSET: 90,
     SUCCESS_URL: 'success.html',
     DEBUG: true,
@@ -486,6 +486,7 @@ function calculateAukceDeadline() {
     const days = getSelectedAukceDays();
     if (!days) return null;
     const deadline = addBusinessDays(new Date(), days);
+    deadline.setHours(12, 0, 0, 0); // deadline do 12:00
     return deadline.toISOString().split('T')[0]; // YYYY-MM-DD
 }
 
@@ -618,7 +619,7 @@ function validateTermin(value) {
     maxDate.setDate(today.getDate() + CONFIG.MAX_DATE_OFFSET);
 
     if (selectedDate < minDate) {
-        return 'Vyberte datum nejdříve od zítřka';
+        return 'Vyberte datum nejdříve za týden od dneška';
     }
     if (selectedDate > maxDate) {
         return 'Datum může být maximálně ' + CONFIG.MAX_DATE_OFFSET + ' dní od dneška';
@@ -724,20 +725,19 @@ function preprocessData() {
     const uzaverka = calculateAukceDeadline();
 
     return {
-        timestamp: new Date().toISOString(),
-        znacka: inputs.znacka.value || inputs.znackaInput.value.trim(),
-        produkty: products,
-        specifikace: specifikaceText,
-        celkove_mnozstvi: celkoveMnozstvi,
-        zakaznik_jmeno: inputs.jmeno.value.trim(),
-        zakaznik_email: inputs.email.value.trim(),
-        zakaznik_telefon: inputs.telefon.value.replace(/\D/g, ''),
-        pozadovany_termin: inputs.termin.value,
-        termin_aukce_dny: aukceDays,
-        uzaverka: uzaverka,
-        poznamka: inputs.poznamka.value.trim() || '',
-        formular_url: window.location.href,
-        user_agent: navigator.userAgent
+        brand: inputs.znacka.value || inputs.znackaInput.value.trim(),
+        products: products.map(p => ({
+            specification: p.specifikace,
+            quantity: p.pocet_kusu
+        })),
+        requested_delivery_date: inputs.termin.value,
+        deadline_type: aukceDays,
+        deadline_date: uzaverka,
+        customer_name: inputs.jmeno.value.trim(),
+        customer_email: inputs.email.value.trim(),
+        customer_phone: inputs.telefon.value.replace(/\D/g, ''),
+        note: inputs.poznamka.value.trim() || '',
+        timestamp: new Date().toISOString()
     };
 }
 
@@ -878,7 +878,7 @@ async function submitForm() {
 
         saveContactInfo();
         submissionCount++;
-        showInlineSuccess(data.znacka);
+        showInlineSuccess(data.brand);
 
     } catch (error) {
         log('Error:', error);
