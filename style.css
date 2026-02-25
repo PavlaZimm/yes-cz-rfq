@@ -1048,6 +1048,17 @@ body {
     position: relative;
 }
 
+.produkt-qty-wrapper .form-input {
+    padding-right: 40px;
+    -moz-appearance: textfield;
+}
+
+.produkt-qty-wrapper .form-input::-webkit-outer-spin-button,
+.produkt-qty-wrapper .form-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
 .produkt-qty-wrapper .input-suffix {
     right: 12px;
 }
