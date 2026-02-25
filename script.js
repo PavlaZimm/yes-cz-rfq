@@ -464,16 +464,9 @@ addProduktBtn.addEventListener('click', () => {
 // TERMÍN UKONČENÍ AUKCE - VÝPOČET DEADLINE
 // ============================================
 
-function addBusinessDays(startDate, numDays) {
+function addCalendarDays(startDate, numDays) {
     const result = new Date(startDate);
-    let added = 0;
-    while (added < numDays) {
-        result.setDate(result.getDate() + 1);
-        const dayOfWeek = result.getDay();
-        if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-            added++;
-        }
-    }
+    result.setDate(result.getDate() + numDays);
     return result;
 }
 
@@ -485,7 +478,7 @@ function getSelectedAukceDays() {
 function calculateAukceDeadline() {
     const days = getSelectedAukceDays();
     if (!days) return null;
-    const deadline = addBusinessDays(new Date(), days);
+    const deadline = addCalendarDays(new Date(), days);
     return deadline.toISOString().split('T')[0]; // YYYY-MM-DD
 }
 
