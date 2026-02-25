@@ -969,6 +969,47 @@ body {
     color: var(--orange-primary);
 }
 
+/* Products list in detail */
+.detail-products-list {
+    list-style: disc;
+    padding-left: 20px;
+    margin: 0;
+}
+
+.detail-products-list li {
+    font-size: var(--font-size-body);
+    font-weight: 500;
+    color: var(--text-primary);
+    padding: 4px 0;
+    line-height: 1.5;
+}
+
+/* Decline button */
+.btn-decline {
+    display: block;
+    width: 100%;
+    padding: 10px var(--spacing-sm);
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    text-align: center;
+    margin-top: var(--spacing-xs);
+    transition: color 0.2s;
+}
+
+.btn-decline:hover {
+    color: var(--red-error);
+}
+
+.btn-decline:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
     .detail-grid {
         grid-template-columns: 1fr;

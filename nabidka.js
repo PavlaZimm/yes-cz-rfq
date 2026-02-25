@@ -24,7 +24,7 @@ const offerForm = document.getElementById('offerForm');
 const submitBtn = document.getElementById('submitBtn');
 const btnText = submitBtn.querySelector('.btn-text');
 const btnLoader = submitBtn.querySelector('.btn-loader');
-const editOfferBtn = document.getElementById('editOfferBtn');
+const declineBtn = document.getElementById('declineBtn');
 
 // Form inputs
 const cenaInput = document.getElementById('cenova_nabidka');
@@ -41,8 +41,7 @@ const params = {
     record_id: urlParams.get('record_id'),
     znacka: urlParams.get('znacka'),
     specifikace: urlParams.get('specifikace'),
-    mnozstvi: urlParams.get('mnozstvi'),
-    psc: urlParams.get('psc'),
+    produkty: urlParams.get('produkty'),
     termin: urlParams.get('termin'),
     dodavatel: urlParams.get('dodavatel'),
     uzaverka: urlParams.get('uzaverka')
@@ -61,21 +60,12 @@ function log(...args) {
 function formatCzechDate(dateStr) {
     if (!dateStr) return '';
     try {
-        const parts = dateStr.split('-');
+        var parts = dateStr.split('-');
         if (parts.length !== 3) return dateStr;
-        return parts[2] + '. ' + parts[1] + '. ' + parts[0];
+        return parseInt(parts[2], 10) + '. ' + parseInt(parts[1], 10) + '. ' + parts[0];
     } catch (e) {
         return dateStr;
     }
-}
-
-function formatPSC(psc) {
-    if (!psc) return '';
-    const digits = psc.replace(/\D/g, '');
-    if (digits.length === 5) {
-        return digits.substring(0, 3) + ' ' + digits.substring(3);
-    }
-    return psc;
 }
 
 function escapeHtml(text) {
@@ -109,11 +99,11 @@ function clearFieldError(errorEl, input) {
 
 function validateCena(value) {
     if (!value) {
-        return 'Zadejte cenovou nabídku';
+        return 'Cenová nabídka je povinná a musí být větší než 0.';
     }
     var num = parseFloat(value);
     if (isNaN(num) || num <= 0) {
-        return 'Cenová nabídka musí být kladné číslo';
+        return 'Cenová nabídka je povinná a musí být větší než 0.';
     }
     return null;
 }
@@ -121,7 +111,8 @@ function validateCena(value) {
 function isExpired(uzaverkaStr) {
     if (!uzaverkaStr) return false;
     try {
-        var uzaverka = new Date(uzaverkaStr + 'T23:59:59');
+        // Uzávěrka je do 12:00 daného dne
+        var uzaverka = new Date(uzaverkaStr + 'T12:00:00');
         var now = new Date();
         return now > uzaverka;
     } catch (e) {
@@ -130,40 +121,97 @@ function isExpired(uzaverkaStr) {
 }
 
 // ============================================
+// PARSOVÁNÍ PRODUKTŮ Z URL
+// ============================================
+
+function parseProducts() {
+    // Produkty mohou přijít jako:
+    // 1. JSON string v parametru "produkty"
+    // 2. Textový řetězec v "specifikace" (starý formát)
+    var products = [];
+
+    if (params.produkty) {
+        try {
+            var parsed = JSON.parse(decodeURIComponent(params.produkty));
+            if (Array.isArray(parsed)) {
+                products = parsed;
+            }
+        } catch (e) {
+            // Zkusit jako text
+            log('Products parse error, trying text:', e);
+        }
+    }
+
+    // Fallback: specifikace jako text (řádky "Panel XY - 30 ks")
+    if (products.length === 0 && params.specifikace) {
+        var lines = decodeURIComponent(params.specifikace).split('\n');
+        lines.forEach(function(line) {
+            line = line.trim();
+            if (!line) return;
+            // Zkusit parsovat "specifikace - XX ks"
+            var match = line.match(/^(.+?)\s*-\s*(\d+)\s*ks$/i);
+            if (match) {
+                products.push({
+                    specification: match[1].trim(),
+                    quantity: parseInt(match[2], 10)
+                });
+            } else {
+                products.push({ specification: line, quantity: null });
+            }
+        });
+    }
+
+    return products;
+}
+
+// ============================================
 // ZOBRAZENÍ DETAILU POPTÁVKY
 // ============================================
 
 function renderDetail() {
+    // Dodavatel
+    var dodavatelEl = document.getElementById('val-dodavatel');
+    if (params.dodavatel) {
+        dodavatelEl.textContent = decodeURIComponent(params.dodavatel);
+    } else {
+        document.getElementById('detail-dodavatel').style.display = 'none';
+    }
+
     // Značka
     var znackaEl = document.getElementById('val-znacka');
-    znackaEl.textContent = params.znacka || '—';
+    znackaEl.textContent = params.znacka ? decodeURIComponent(params.znacka) : '—';
 
-    // Specifikace
-    var specEl = document.getElementById('val-specifikace');
-    specEl.textContent = params.specifikace || '—';
+    // Produkty
+    var produktyEl = document.getElementById('val-produkty');
+    var products = parseProducts();
+    if (products.length > 0) {
+        products.forEach(function(p) {
+            var li = document.createElement('li');
+            var text = escapeHtml(p.specification || p.specifikace || '');
+            var qty = p.quantity || p.pocet_kusu;
+            if (qty) {
+                text += ' — <strong>' + qty + ' kusů</strong>';
+            }
+            li.innerHTML = text;
+            produktyEl.appendChild(li);
+        });
+    } else {
+        var li = document.createElement('li');
+        li.textContent = '—';
+        produktyEl.appendChild(li);
+    }
 
-    // Množství
-    var mnozstviEl = document.getElementById('val-mnozstvi');
-    mnozstviEl.textContent = params.mnozstvi ? params.mnozstvi + ' ks' : '—';
-
-    // PSČ
-    var pscEl = document.getElementById('val-psc');
-    pscEl.textContent = params.psc ? formatPSC(params.psc) : '—';
-
-    // Termín
+    // Termín dodání
     var terminEl = document.getElementById('val-termin');
     terminEl.textContent = params.termin ? formatCzechDate(params.termin) : '—';
 
-    // Dodavatel (pokud je v URL)
-    if (params.dodavatel) {
-        var dodavatelEl = document.getElementById('val-dodavatel');
-        dodavatelEl.textContent = params.dodavatel;
-        document.getElementById('detail-dodavatel').style.display = '';
-    }
-
-    // Uzávěrka
+    // Uzávěrka - s časem do 12:00
     var uzaverkaEl = document.getElementById('val-uzaverka');
-    uzaverkaEl.textContent = params.uzaverka ? formatCzechDate(params.uzaverka) : '—';
+    if (params.uzaverka) {
+        uzaverkaEl.textContent = formatCzechDate(params.uzaverka) + ' do 12:00';
+    } else {
+        uzaverkaEl.textContent = '—';
+    }
 }
 
 // ============================================
@@ -177,12 +225,14 @@ function setLoadingState(loading) {
         btnLoader.style.display = 'flex';
         cenaInput.disabled = true;
         poznamkaInput.disabled = true;
+        declineBtn.disabled = true;
     } else {
         submitBtn.disabled = false;
         btnText.style.display = 'block';
         btnLoader.style.display = 'none';
         cenaInput.disabled = false;
         poznamkaInput.disabled = false;
+        declineBtn.disabled = false;
     }
 }
 
@@ -191,7 +241,6 @@ function setLoadingState(loading) {
 // ============================================
 
 async function submitOffer() {
-    // Validace
     clearFieldError(cenaError, cenaInput);
 
     var error = validateCena(cenaInput.value);
@@ -205,12 +254,6 @@ async function submitOffer() {
     if (isExpired(params.uzaverka)) {
         offerCard.style.display = 'none';
         expiredCard.style.display = 'block';
-        return;
-    }
-
-    // Kontrola webhook
-    if (!NABIDKA_CONFIG.WEBHOOK_URL || NABIDKA_CONFIG.WEBHOOK_URL.includes('PLACEHOLDER')) {
-        showError('Chyba konfigurace: Webhook URL pro nabídky není nastaven. Kontaktujte administrátora.');
         return;
     }
 
@@ -242,26 +285,77 @@ async function submitOffer() {
             throw new Error('Server error: ' + response.status + ' ' + errorText);
         }
 
-        // Úspěch
         log('Nabídka odeslána úspěšně');
         offerCard.style.display = 'none';
+        document.getElementById('successTitle').textContent = 'Děkujeme!';
+        document.getElementById('successPerex').textContent = 'Nabídka odeslána! Děkujeme.';
         successCard.style.display = 'block';
         successCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     } catch (err) {
         log('Error:', err);
 
-        var errorMsg = 'Nastala chyba při odesílání. Zkuste to prosím znovu.';
+        var errorMsg = 'Chyba při odesílání. Zkuste znovu nebo kontaktujte support.';
 
         if (err.name === 'AbortError') {
             errorMsg = 'Požadavek trval příliš dlouho. Zkuste to znovu.';
         } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
             errorMsg = 'Nepodařilo se odeslat nabídku. Zkontrolujte připojení.';
-        } else if (err.message.includes('Server error')) {
-            errorMsg = 'Došlo k chybě na serveru. Kontaktujte nás na +420 608 887 277';
         }
 
         showError(errorMsg);
+        setLoadingState(false);
+    }
+}
+
+// ============================================
+// ODMÍTNUTÍ ÚČASTI
+// ============================================
+
+async function declineOffer() {
+    if (isExpired(params.uzaverka)) {
+        offerCard.style.display = 'none';
+        expiredCard.style.display = 'block';
+        return;
+    }
+
+    var data = {
+        record_id: params.record_id,
+        declined: true,
+        datum_odeslani: new Date().toISOString()
+    };
+
+    log('Odmítám účast:', data);
+    setLoadingState(true);
+
+    try {
+        var controller = new AbortController();
+        var timeoutId = setTimeout(function () { controller.abort(); }, NABIDKA_CONFIG.TIMEOUT);
+
+        var response = await fetch(NABIDKA_CONFIG.WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+            signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+            var errorText = await response.text();
+            throw new Error('Server error: ' + response.status + ' ' + errorText);
+        }
+
+        log('Odmítnutí odesláno');
+        offerCard.style.display = 'none';
+        document.getElementById('successTitle').textContent = 'Děkujeme za informaci';
+        document.getElementById('successPerex').textContent = 'Máte možnost se později připojit.';
+        successCard.style.display = 'block';
+        successCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    } catch (err) {
+        log('Error:', err);
+        showError('Chyba při odesílání. Zkuste znovu nebo kontaktujte support.');
         setLoadingState(false);
     }
 }
@@ -275,11 +369,8 @@ offerForm.addEventListener('submit', function (e) {
     submitOffer();
 });
 
-editOfferBtn.addEventListener('click', function () {
-    successCard.style.display = 'none';
-    offerCard.style.display = 'block';
-    offerCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    cenaInput.focus();
+declineBtn.addEventListener('click', function () {
+    declineOffer();
 });
 
 cenaInput.addEventListener('input', function () {
