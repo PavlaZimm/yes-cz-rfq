@@ -190,30 +190,29 @@
                     <fieldset class="form-section">
                         <legend class="form-section-title">Kontaktní údaje</legend>
 
-                        <!-- Jméno a příjmení -->
-                        <div class="form-group">
-                            <label for="zakaznik_jmeno" class="form-label">
-                                Jméno a příjmení <span class="required">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                id="zakaznik_jmeno"
-                                name="zakaznik_jmeno"
-                                class="form-input"
-                                required
-                                minlength="2"
-                                maxlength="100"
-                                pattern="[A-Za-zÁáČčĎďÉéĚěÍíŇňÓóŘřŠšŤťÚúŮůÝýŽž\s]+"
-                                placeholder="Jan Novák"
-                                aria-required="true"
-                                aria-invalid="false"
-                                aria-describedby="jmeno-error jmeno-hint"
-                            >
-                            <span id="jmeno-hint" class="form-hint">Minimálně 2 znaky, pouze písmena a mezery</span>
-                            <span id="jmeno-error" class="form-error" role="alert"></span>
-                        </div>
+                        <div class="form-row form-row-3">
+                            <!-- Jméno a příjmení -->
+                            <div class="form-group">
+                                <label for="zakaznik_jmeno" class="form-label">
+                                    Jméno a příjmení <span class="required">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="zakaznik_jmeno"
+                                    name="zakaznik_jmeno"
+                                    class="form-input"
+                                    required
+                                    minlength="2"
+                                    maxlength="100"
+                                    pattern="[A-Za-zÁáČčĎďÉéĚěÍíŇňÓóŘřŠšŤťÚúŮůÝýŽž\s]+"
+                                    placeholder="Jan Novák"
+                                    aria-required="true"
+                                    aria-invalid="false"
+                                    aria-describedby="jmeno-error"
+                                >
+                                <span id="jmeno-error" class="form-error" role="alert"></span>
+                            </div>
 
-                        <div class="form-row">
                             <!-- Email -->
                             <div class="form-group">
                                 <label for="zakaznik_email" class="form-label">
@@ -248,9 +247,8 @@
                                     maxlength="17"
                                     aria-required="true"
                                     aria-invalid="false"
-                                    aria-describedby="telefon-error telefon-hint"
+                                    aria-describedby="telefon-error"
                                 >
-                                <span id="telefon-hint" class="form-hint">Formát: +420 123 456 789</span>
                                 <span id="telefon-error" class="form-error" role="alert"></span>
                             </div>
                         </div>
