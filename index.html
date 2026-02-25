@@ -160,28 +160,33 @@
                                 aria-invalid="false"
                                 aria-describedby="termin-error termin-hint"
                             >
-                            <span id="termin-hint" class="form-hint">Nejdříve zítřek, maximálně 90 dní od dneška</span>
+                            <span id="termin-hint" class="form-hint">Nejdříve za týden od dneška</span>
                             <span id="termin-error" class="form-error" role="alert"></span>
                         </div>
 
-                        <!-- Termín ukončení aukce - Radio buttons -->
+                        <!-- Doba pro zadání nabídek - Radio buttons -->
                         <div class="form-group">
                             <label class="form-label">
-                                Termín ukončení aukce <span class="required">*</span>
+                                Doba pro zadání nabídek <span class="required">*</span>
                             </label>
                             <div class="radio-group" id="aukceRadioGroup">
                                 <label class="radio-option">
-                                    <input type="radio" name="termin_aukce" value="7" required>
+                                    <input type="radio" name="termin_aukce" value="3" required>
                                     <span class="radio-custom"></span>
-                                    <span class="radio-label">7 dnů</span>
+                                    <span class="radio-label">Tři pracovní dny</span>
                                 </label>
                                 <label class="radio-option">
-                                    <input type="radio" name="termin_aukce" value="14">
+                                    <input type="radio" name="termin_aukce" value="5">
                                     <span class="radio-custom"></span>
-                                    <span class="radio-label">14 dnů</span>
+                                    <span class="radio-label">Pět pracovních dnů</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="termin_aukce" value="7">
+                                    <span class="radio-custom"></span>
+                                    <span class="radio-label">Sedm pracovních dnů</span>
                                 </label>
                             </div>
-                            <span id="aukce-hint" class="form-hint">Systém automaticky spočítá deadline od dneška</span>
+                            <span id="aukce-hint" class="form-hint">Systém automaticky spočítá deadline od dneška (do 12:00)</span>
                             <span id="aukce-error" class="form-error" role="alert"></span>
                         </div>
                     </fieldset>
