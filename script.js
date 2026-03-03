@@ -431,18 +431,27 @@ function updateRemoveButtons() {
 }
 
 function getProductsData() {
-    const rows = produktyList.querySelectorAll('.produkt-row');
+    const rows = Array.from(produktyList.querySelectorAll('.produkt-row'));
+    log('getProductsData: nalezeno řádků:', rows.length);
     const products = [];
-    rows.forEach(row => {
-        const spec = row.querySelector('.produkt-spec').value.trim();
-        const qty = row.querySelector('.produkt-qty').value;
+    for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const specEl = row.querySelector('.produkt-spec');
+        const qtyEl = row.querySelector('.produkt-qty');
+        if (!specEl || !qtyEl) {
+            log('getProductsData: řádek', i, 'nemá spec/qty element, přeskakuji');
+            continue;
+        }
+        const spec = specEl.value.trim();
+        const qty = qtyEl.value;
         if (spec || qty) {
             products.push({
                 specifikace: spec,
                 pocet_kusu: qty ? parseInt(qty, 10) : 0
             });
         }
-    });
+    }
+    log('getProductsData: celkem produktů:', products.length);
     return products;
 }
 
@@ -710,15 +719,15 @@ function formatTelefon(value) {
 }
 
 function preprocessData() {
-    const products = getProductsData();
+    const rawProducts = getProductsData();
 
-    // Build specifikace string from products (for backward compatibility)
-    const specifikaceText = products.map(p =>
-        p.specifikace + ' - ' + p.pocet_kusu + ' ks'
-    ).join('\n');
+    // Map all collected products to the final format
+    const products = rawProducts.map(p => ({
+        specification: p.specifikace,
+        quantity: p.pocet_kusu
+    }));
 
-    // Calculate total quantity
-    const celkoveMnozstvi = products.reduce((sum, p) => sum + (p.pocet_kusu || 0), 0);
+    log('preprocessData: odesílám', products.length, 'produktů:', JSON.stringify(products));
 
     // Calculate auction deadline
     const aukceDays = getSelectedAukceDays();
@@ -726,10 +735,7 @@ function preprocessData() {
 
     return {
         brand: inputs.znacka.value || inputs.znackaInput.value.trim(),
-        products: products.map(p => ({
-            specification: p.specifikace,
-            quantity: p.pocet_kusu
-        })),
+        products: products,
         requested_delivery_date: inputs.termin.value,
         deadline_type: aukceDays,
         deadline_date: uzaverka,
