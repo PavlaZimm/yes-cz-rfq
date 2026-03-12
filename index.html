@@ -170,7 +170,7 @@
                         <!-- Doba pro zadání nabídek - Radio buttons -->
                         <div class="form-group">
                             <label class="form-label">
-                                Kolik času mají obchodníci na zpracování nabídky? <span class="required">*</span>
+                                Kolik času mají obchodníci na zpracování nabídky včetně ověření dopravy na místo zakázky? <span class="required">*</span>
                             </label>
                             <div class="radio-group" id="aukceRadioGroup">
                                 <label class="radio-option">
@@ -198,6 +198,49 @@
                         <legend class="form-section-title">Kontaktní údaje</legend>
 
                         <div class="form-stack">
+                            <!-- Název společnosti -->
+                            <div class="form-group">
+                                <label for="nazev_spolecnosti" class="form-label">
+                                    Název společnosti <span class="required">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="nazev_spolecnosti"
+                                    name="nazev_spolecnosti"
+                                    class="form-input"
+                                    required
+                                    minlength="2"
+                                    maxlength="200"
+                                    placeholder="Název vaší společnosti"
+                                    aria-required="true"
+                                    aria-invalid="false"
+                                    aria-describedby="spolecnost-error"
+                                >
+                                <span id="spolecnost-error" class="form-error" role="alert"></span>
+                            </div>
+
+                            <!-- IČO -->
+                            <div class="form-group">
+                                <label for="ico" class="form-label">
+                                    IČO <span class="required">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="ico"
+                                    name="ico"
+                                    class="form-input"
+                                    required
+                                    minlength="8"
+                                    maxlength="8"
+                                    pattern="[0-9]{8}"
+                                    placeholder="12345678"
+                                    aria-required="true"
+                                    aria-invalid="false"
+                                    aria-describedby="ico-error"
+                                >
+                                <span id="ico-error" class="form-error" role="alert"></span>
+                            </div>
+
                             <!-- Jméno a příjmení -->
                             <div class="form-group">
                                 <label for="zakaznik_jmeno" class="form-label">
