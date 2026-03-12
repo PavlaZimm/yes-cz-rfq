@@ -63,6 +63,8 @@ const inputs = {
     znackaInput: document.getElementById('znacka-input'),
     znacka: document.getElementById('znacka'),
     termin: document.getElementById('pozadovany_termin'),
+    spolecnost: document.getElementById('nazev_spolecnosti'),
+    ico: document.getElementById('ico'),
     jmeno: document.getElementById('zakaznik_jmeno'),
     email: document.getElementById('zakaznik_email'),
     telefon: document.getElementById('zakaznik_telefon'),
@@ -84,6 +86,8 @@ const errorElements = {
     produkty: document.getElementById('produkty-error'),
     termin: document.getElementById('termin-error'),
     aukce: document.getElementById('aukce-error'),
+    spolecnost: document.getElementById('spolecnost-error'),
+    ico: document.getElementById('ico-error'),
     jmeno: document.getElementById('jmeno-error'),
     email: document.getElementById('email-error'),
     telefon: document.getElementById('telefon-error')
@@ -528,14 +532,16 @@ function validateProdukty() {
         const qty = qtyInput.value;
 
         // Reset styling
+        specInput.classList.remove('input-error');
         specInput.style.borderColor = '';
+        qtyInput.classList.remove('input-error');
         qtyInput.style.borderColor = '';
 
         if (!spec && !qty) {
             // Empty row - mark as error if it's the only row
             if (rows.length === 1) {
-                specInput.style.borderColor = 'var(--red-error)';
-                qtyInput.style.borderColor = 'var(--red-error)';
+                specInput.classList.add('input-error');
+                qtyInput.classList.add('input-error');
                 hasError = true;
                 errorMsg = 'Zadejte alespoň jeden produkt';
             }
@@ -543,14 +549,14 @@ function validateProdukty() {
         }
 
         if (!spec) {
-            specInput.style.borderColor = 'var(--red-error)';
+            specInput.classList.add('input-error');
             hasError = true;
             errorMsg = 'Vyplňte specifikaci u všech produktů';
             return;
         }
 
         if (!qty || parseInt(qty, 10) < 1) {
-            qtyInput.style.borderColor = 'var(--red-error)';
+            qtyInput.classList.add('input-error');
             hasError = true;
             errorMsg = 'Zadejte počet kusů u všech produktů';
             return;
@@ -571,6 +577,26 @@ function validateAukce() {
     const selected = getSelectedAukceDays();
     if (!selected) {
         return 'Vyberte termín ukončení aukce';
+    }
+    return null;
+}
+
+function validateSpolecnost(value) {
+    if (!value || value.trim().length < 2) {
+        return 'Název společnosti musí obsahovat alespoň 2 znaky';
+    }
+    if (value.length > 200) {
+        return 'Název společnosti může obsahovat maximálně 200 znaků';
+    }
+    return null;
+}
+
+function validateIco(value) {
+    if (!value) {
+        return 'IČO je povinné';
+    }
+    if (!/^[0-9]{8}$/.test(value.trim())) {
+        return 'IČO musí obsahovat přesně 8 číslic';
     }
     return null;
 }
@@ -651,6 +677,8 @@ function validateForm() {
         produkty: validateProdukty(),
         termin: validateTermin(inputs.termin.value),
         aukce: validateAukce(),
+        spolecnost: validateSpolecnost(inputs.spolecnost.value.trim()),
+        ico: validateIco(inputs.ico.value),
         jmeno: validateJmeno(inputs.jmeno.value.trim()),
         email: validateEmail(inputs.email.value.trim()),
         telefon: validateTelefon(inputs.telefon.value)
@@ -672,6 +700,10 @@ function validateForm() {
                     firstErrorElement = produktyList.querySelector('.produkt-spec');
                 } else if (key === 'aukce') {
                     firstErrorElement = document.getElementById('aukceRadioGroup');
+                } else if (key === 'spolecnost') {
+                    firstErrorElement = inputs.spolecnost;
+                } else if (key === 'ico') {
+                    firstErrorElement = inputs.ico;
                 } else {
                     firstErrorElement = inputs[key];
                 }
@@ -739,6 +771,8 @@ function preprocessData() {
         requested_delivery_date: inputs.termin.value,
         deadline_type: aukceDays,
         deadline_date: uzaverka,
+        nazev_spolecnosti: inputs.spolecnost.value.trim(),
+        ico: inputs.ico.value.trim(),
         customer_name: inputs.jmeno.value.trim(),
         customer_email: inputs.email.value.trim(),
         customer_phone: inputs.telefon.value.replace(/\D/g, ''),
@@ -808,6 +842,8 @@ function setLoadingState(loading) {
 function saveContactInfo() {
     try {
         const contact = {
+            spolecnost: inputs.spolecnost.value.trim(),
+            ico: inputs.ico.value.trim(),
             jmeno: inputs.jmeno.value.trim(),
             email: inputs.email.value.trim(),
             telefon: inputs.telefon.value
@@ -823,6 +859,8 @@ function restoreContactInfo() {
         const saved = sessionStorage.getItem('rfq_contact');
         if (saved) {
             const contact = JSON.parse(saved);
+            if (contact.spolecnost) inputs.spolecnost.value = contact.spolecnost;
+            if (contact.ico) inputs.ico.value = contact.ico;
             if (contact.jmeno) inputs.jmeno.value = contact.jmeno;
             if (contact.email) inputs.email.value = contact.email;
             if (contact.telefon) inputs.telefon.value = contact.telefon;
@@ -1004,6 +1042,18 @@ submitAnotherBtn.addEventListener('click', () => {
 });
 
 // Real-time validace při blur
+inputs.spolecnost.addEventListener('blur', () => {
+    const error = validateSpolecnost(inputs.spolecnost.value.trim());
+    if (error) showFieldError('spolecnost', error);
+    else clearFieldError('spolecnost');
+});
+
+inputs.ico.addEventListener('blur', () => {
+    const error = validateIco(inputs.ico.value);
+    if (error) showFieldError('ico', error);
+    else clearFieldError('ico');
+});
+
 inputs.jmeno.addEventListener('blur', () => {
     const error = validateJmeno(inputs.jmeno.value.trim());
     if (error) showFieldError('jmeno', error);
@@ -1045,7 +1095,7 @@ inputs.poznamka.addEventListener('input', () => {
 });
 
 // Clear error při psaní
-['jmeno', 'email'].forEach(key => {
+['spolecnost', 'ico', 'jmeno', 'email'].forEach(key => {
     inputs[key].addEventListener('input', () => {
         clearFieldError(key);
     });

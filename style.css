@@ -420,6 +420,11 @@ body {
     display: block;
 }
 
+.form-input.input-error {
+    border-color: var(--red-error) !important;
+    box-shadow: 0 0 0 1px var(--red-error);
+}
+
 /* ============================================
    Searchable Dropdown (Brand Select)
    ============================================ */
