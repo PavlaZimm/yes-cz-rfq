@@ -68,6 +68,7 @@ const inputs = {
     jmeno: document.getElementById('zakaznik_jmeno'),
     email: document.getElementById('zakaznik_email'),
     telefon: document.getElementById('zakaznik_telefon'),
+    mistoDodani: document.getElementById('misto_dodani'),
     poznamka: document.getElementById('poznamka')
 };
 
@@ -172,7 +173,7 @@ function clearAllErrors() {
 
 async function loadBrands() {
     if (!CONFIG.BRANDS_API_URL) {
-        brands = CONFIG.FALLBACK_BRANDS.slice().sort();
+        brands = ['Bez značky'].concat(CONFIG.FALLBACK_BRANDS.slice().sort());
         log('Použity fallback značky:', brands.length);
         return;
     }
@@ -196,15 +197,15 @@ async function loadBrands() {
         const data = await response.json();
 
         if (Array.isArray(data)) {
-            brands = data.map(item =>
+            brands = ['Bez značky'].concat(data.map(item =>
                 typeof item === 'string' ? item : (item.name || item.Name || item.znacka || '')
-            ).filter(Boolean).sort();
+            ).filter(Boolean).sort());
         } else if (data.brands && Array.isArray(data.brands)) {
-            brands = data.brands.filter(Boolean).sort();
+            brands = ['Bez značky'].concat(data.brands.filter(Boolean).sort());
         } else if (data.records && Array.isArray(data.records)) {
-            brands = data.records.map(r =>
+            brands = ['Bez značky'].concat(data.records.map(r =>
                 r.fields ? (r.fields.name || r.fields.Name || r.fields.znacka || '') : ''
-            ).filter(Boolean).sort();
+            ).filter(Boolean).sort());
         } else {
             throw new Error('Neočekávaný formát dat');
         }
@@ -212,7 +213,7 @@ async function loadBrands() {
         log('Načteno značek z API:', brands.length);
     } catch (error) {
         log('Chyba při načítání značek:', error);
-        brands = CONFIG.FALLBACK_BRANDS.slice().sort();
+        brands = ['Bez značky'].concat(CONFIG.FALLBACK_BRANDS.slice().sort());
         log('Použity fallback značky po chybě');
     } finally {
         znackaLoading.style.display = 'none';
@@ -776,6 +777,7 @@ function preprocessData() {
         customer_name: inputs.jmeno.value.trim(),
         customer_email: inputs.email.value.trim(),
         customer_phone: inputs.telefon.value.replace(/\D/g, ''),
+        misto_dodani: inputs.mistoDodani.value.trim() || '',
         note: inputs.poznamka.value.trim() || '',
         timestamp: new Date().toISOString()
     };
