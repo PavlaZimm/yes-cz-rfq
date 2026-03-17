@@ -510,7 +510,7 @@ function calculateAukceDeadline() {
 function validateZnacka() {
     const value = inputs.znacka.value || inputs.znackaInput.value.trim();
     if (!value) {
-        return 'Vyberte značku ze seznamu';
+        return null; // značka je nepovinná
     }
     const isValid = brands.some(b => b.toLowerCase() === value.toLowerCase());
     if (!isValid) {
@@ -950,10 +950,18 @@ function showInlineSuccess(brandName) {
     formCard.style.display = 'none';
 
     const successMsg = document.getElementById('successMessage');
-    if (submissionCount > 1) {
-        successMsg.textContent = 'Poptávka pro značku "' + brandName + '" byla odeslána (' + submissionCount + '. poptávka v této relaci).';
+    if (brandName) {
+        if (submissionCount > 1) {
+            successMsg.textContent = 'Poptávka pro značku "' + brandName + '" byla odeslána (' + submissionCount + '. poptávka v této relaci).';
+        } else {
+            successMsg.textContent = 'Poptávka pro značku "' + brandName + '" byla úspěšně odeslána. Ozveme se vám s nabídkou.';
+        }
     } else {
-        successMsg.textContent = 'Poptávka pro značku "' + brandName + '" byla úspěšně odeslána. Ozveme se vám s nabídkou.';
+        if (submissionCount > 1) {
+            successMsg.textContent = 'Poptávka byla odeslána (' + submissionCount + '. poptávka v této relaci).';
+        } else {
+            successMsg.textContent = 'Poptávka byla úspěšně odeslána. Ozveme se vám s nabídkou.';
+        }
     }
 
     successAlert.style.display = 'flex';
