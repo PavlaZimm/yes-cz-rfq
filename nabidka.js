@@ -29,9 +29,17 @@ const declineBtn = document.getElementById('declineBtn');
 // Form inputs
 const poznamkaInput = document.getElementById('nabidka_poznamka');
 const productPricesContainer = document.getElementById('product-prices');
+const zpusobBaleniInput = document.getElementById('zpusob_baleni');
+const pocetPaletInput = document.getElementById('pocet_palet');
+const rozmerPaletyInput = document.getElementById('rozmery_palety');
+const vahaKgInput = document.getElementById('vaha_kg');
 
 // Error elements
 const pricesError = document.getElementById('prices-error');
+const zpusobBaleniError = document.getElementById('zpusob-baleni-error');
+const pocetPaletError = document.getElementById('pocet-palet-error');
+const rozmerPaletyError = document.getElementById('rozmery-palety-error');
+const vahaKgError = document.getElementById('vaha-kg-error');
 
 // ============================================
 // URL PARAMETRY
@@ -263,6 +271,39 @@ function validatePrices() {
     return null;
 }
 
+function validateShippingFields() {
+    var valid = true;
+
+    clearFieldError(zpusobBaleniError);
+    clearFieldError(pocetPaletError);
+    clearFieldError(rozmerPaletyError);
+    clearFieldError(vahaKgError);
+
+    if (!zpusobBaleniInput.value.trim()) {
+        showFieldError(zpusobBaleniError, 'Vyplňte způsob balení.');
+        valid = false;
+    }
+
+    var pocet = parseInt(pocetPaletInput.value, 10);
+    if (!pocetPaletInput.value || isNaN(pocet) || pocet < 1) {
+        showFieldError(pocetPaletError, 'Zadejte počet palet (min. 1).');
+        valid = false;
+    }
+
+    if (!rozmerPaletyInput.value.trim()) {
+        showFieldError(rozmerPaletyError, 'Vyplňte rozměry palety.');
+        valid = false;
+    }
+
+    var vaha = parseFloat(vahaKgInput.value);
+    if (!vahaKgInput.value || isNaN(vaha) || vaha <= 0) {
+        showFieldError(vahaKgError, 'Zadejte váhu (větší než 0).');
+        valid = false;
+    }
+
+    return valid;
+}
+
 // ============================================
 // LOADING STAV
 // ============================================
@@ -275,6 +316,10 @@ function setLoadingState(loading) {
         btnText.style.display = 'none';
         btnLoader.style.display = 'flex';
         poznamkaInput.disabled = true;
+        zpusobBaleniInput.disabled = true;
+        pocetPaletInput.disabled = true;
+        rozmerPaletyInput.disabled = true;
+        vahaKgInput.disabled = true;
         declineBtn.disabled = true;
         priceInputs.forEach(function(input) { input.disabled = true; });
     } else {
@@ -282,6 +327,10 @@ function setLoadingState(loading) {
         btnText.style.display = 'block';
         btnLoader.style.display = 'none';
         poznamkaInput.disabled = false;
+        zpusobBaleniInput.disabled = false;
+        pocetPaletInput.disabled = false;
+        rozmerPaletyInput.disabled = false;
+        vahaKgInput.disabled = false;
         declineBtn.disabled = false;
         priceInputs.forEach(function(input) { input.disabled = false; });
     }
@@ -299,6 +348,10 @@ async function submitOffer() {
         showFieldError(pricesError, error);
         var firstEmpty = productPricesContainer.querySelector('.product-price-input[style*="red"]');
         if (firstEmpty) firstEmpty.focus();
+        return;
+    }
+
+    if (!validateShippingFields()) {
         return;
     }
 
@@ -323,6 +376,10 @@ async function submitOffer() {
     var data = {
         record_id: params.record_id,
         products: products,
+        zpusob_baleni: zpusobBaleniInput.value.trim(),
+        pocet_palet: parseInt(pocetPaletInput.value, 10),
+        rozmery_palety: rozmerPaletyInput.value.trim(),
+        vaha_kg: parseFloat(vahaKgInput.value),
         poznamka: poznamkaInput.value.trim() || '',
         datum_odeslani: new Date().toISOString()
     };
@@ -435,6 +492,12 @@ offerForm.addEventListener('submit', function (e) {
 declineBtn.addEventListener('click', function () {
     declineOffer();
 });
+
+// Clear errors on input for shipping fields
+zpusobBaleniInput.addEventListener('input', function() { clearFieldError(zpusobBaleniError); });
+pocetPaletInput.addEventListener('input', function() { clearFieldError(pocetPaletError); });
+rozmerPaletyInput.addEventListener('input', function() { clearFieldError(rozmerPaletyError); });
+vahaKgInput.addEventListener('input', function() { clearFieldError(vahaKgError); });
 
 // Počítadlo znaků poznámky
 poznamkaInput.addEventListener('input', function () {

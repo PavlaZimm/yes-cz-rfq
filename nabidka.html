@@ -94,6 +94,89 @@
                             <span id="prices-error" class="form-error" role="alert"></span>
                         </div>
 
+                        <!-- Způsob balení -->
+                        <div class="form-group">
+                            <label for="zpusob_baleni" class="form-label">
+                                Způsob balení <span class="required">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="zpusob_baleni"
+                                name="zpusob_baleni"
+                                class="form-input"
+                                required
+                                maxlength="200"
+                                placeholder="Např. na paletě, v kartonu..."
+                                aria-required="true"
+                                aria-invalid="false"
+                                aria-describedby="zpusob-baleni-error"
+                            >
+                            <span id="zpusob-baleni-error" class="form-error" role="alert"></span>
+                        </div>
+
+                        <!-- Počet palet -->
+                        <div class="form-group">
+                            <label for="pocet_palet" class="form-label">
+                                Počet palet <span class="required">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                id="pocet_palet"
+                                name="pocet_palet"
+                                class="form-input"
+                                required
+                                min="1"
+                                step="1"
+                                placeholder="0"
+                                aria-required="true"
+                                aria-invalid="false"
+                                aria-describedby="pocet-palet-error"
+                            >
+                            <span id="pocet-palet-error" class="form-error" role="alert"></span>
+                        </div>
+
+                        <!-- Rozměry palety -->
+                        <div class="form-group">
+                            <label for="rozmery_palety" class="form-label">
+                                Rozměry palety (cm) <span class="required">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="rozmery_palety"
+                                name="rozmery_palety"
+                                class="form-input"
+                                required
+                                maxlength="100"
+                                placeholder="120 x 80 x 150"
+                                aria-required="true"
+                                aria-invalid="false"
+                                aria-describedby="rozmery-palety-hint rozmery-palety-error"
+                            >
+                            <span id="rozmery-palety-hint" class="form-hint">Např. 120 x 80 x 150</span>
+                            <span id="rozmery-palety-error" class="form-error" role="alert"></span>
+                        </div>
+
+                        <!-- Váha celkem -->
+                        <div class="form-group">
+                            <label for="vaha_kg" class="form-label">
+                                Váha celkem (kg) <span class="required">*</span>
+                            </label>
+                            <input
+                                type="number"
+                                id="vaha_kg"
+                                name="vaha_kg"
+                                class="form-input"
+                                required
+                                min="0.1"
+                                step="0.1"
+                                placeholder="0"
+                                aria-required="true"
+                                aria-invalid="false"
+                                aria-describedby="vaha-kg-error"
+                            >
+                            <span id="vaha-kg-error" class="form-error" role="alert"></span>
+                        </div>
+
                         <!-- Poznámka -->
                         <div class="form-group">
                             <label for="nabidka_poznamka" class="form-label">
