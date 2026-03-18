@@ -240,6 +240,25 @@
                                 <span id="ico-error" class="form-error" role="alert"></span>
                             </div>
 
+                            <!-- Adresa místa dodání -->
+                            <div class="form-group">
+                                <label for="adresa_dodani" class="form-label">
+                                    Adresa místa dodání <span class="optional">(volitelné)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="adresa_dodani"
+                                    name="adresa_dodani"
+                                    class="form-input"
+                                    maxlength="300"
+                                    placeholder="Ulice, město, PSČ"
+                                    aria-required="false"
+                                    aria-invalid="false"
+                                    aria-describedby="adresa-dodani-hint"
+                                >
+                                <span id="adresa-dodani-hint" class="form-hint">Vyplňte pouze pokud je adresa dodání jiná než adresa společnosti</span>
+                            </div>
+
                             <!-- Jméno a příjmení -->
                             <div class="form-group">
                                 <label for="zakaznik_jmeno" class="form-label">

@@ -68,6 +68,7 @@ const inputs = {
     jmeno: document.getElementById('zakaznik_jmeno'),
     email: document.getElementById('zakaznik_email'),
     telefon: document.getElementById('zakaznik_telefon'),
+    adresaDodani: document.getElementById('adresa_dodani'),
     poznamka: document.getElementById('poznamka')
 };
 
@@ -776,6 +777,7 @@ function preprocessData() {
         customer_name: inputs.jmeno.value.trim(),
         customer_email: inputs.email.value.trim(),
         customer_phone: inputs.telefon.value.replace(/\D/g, ''),
+        adresa_dodani: inputs.adresaDodani.value.trim() || '',
         note: inputs.poznamka.value.trim() || '',
         timestamp: new Date().toISOString()
     };
@@ -846,7 +848,8 @@ function saveContactInfo() {
             ico: inputs.ico.value.trim(),
             jmeno: inputs.jmeno.value.trim(),
             email: inputs.email.value.trim(),
-            telefon: inputs.telefon.value
+            telefon: inputs.telefon.value,
+            adresaDodani: inputs.adresaDodani.value.trim()
         };
         sessionStorage.setItem('rfq_contact', JSON.stringify(contact));
     } catch (e) {
@@ -864,6 +867,7 @@ function restoreContactInfo() {
             if (contact.jmeno) inputs.jmeno.value = contact.jmeno;
             if (contact.email) inputs.email.value = contact.email;
             if (contact.telefon) inputs.telefon.value = contact.telefon;
+            if (contact.adresaDodani) inputs.adresaDodani.value = contact.adresaDodani;
         }
     } catch (e) {
         // sessionStorage not available
