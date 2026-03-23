@@ -120,6 +120,8 @@ function showFieldError(fieldName, message) {
     if (errorEl) {
         errorEl.textContent = message;
         errorEl.classList.add('active');
+        const group = errorEl.closest('.form-group');
+        if (group) group.classList.add('field-error');
     }
 
     let input;
@@ -143,6 +145,8 @@ function clearFieldError(fieldName) {
     if (errorEl) {
         errorEl.textContent = '';
         errorEl.classList.remove('active');
+        const group = errorEl.closest('.form-group');
+        if (group) group.classList.remove('field-error');
     }
 
     let input;

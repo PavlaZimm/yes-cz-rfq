@@ -85,11 +85,15 @@ function showError(message) {
 function showFieldError(errorEl, message) {
     errorEl.textContent = message;
     errorEl.classList.add('active');
+    var group = errorEl.closest('.form-group');
+    if (group) group.classList.add('field-error');
 }
 
 function clearFieldError(errorEl) {
     errorEl.textContent = '';
     errorEl.classList.remove('active');
+    var group = errorEl.closest('.form-group');
+    if (group) group.classList.remove('field-error');
 }
 
 function isExpired(uzaverkaStr) {
