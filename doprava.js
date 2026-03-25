@@ -6,7 +6,7 @@
 // KONFIGURACE
 // ============================================
 const DOPRAVA_CONFIG = {
-    WEBHOOK_URL: 'https://hook.eu1.make.com/DOPRAVA_WEBHOOK',
+    WEBHOOK_URL: 'https://hook.eu1.make.com/ljv8o1ub9355xan4p4gnm54mfjgdtvk7',
     TIMEOUT: 10000,
     DEBUG: false
 };
