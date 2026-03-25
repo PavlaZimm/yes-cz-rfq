@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nová poptávka – Yes.cz</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F8F9FA;font-family:Inter,Arial,sans-serif;">
+
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F8F9FA;">
+    <tr>
+      <td align="center" style="padding:32px 16px;">
+
+        <!-- EMAIL KARTA -->
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+
+          <!-- HEADER s logem -->
+          <tr>
+            <td align="center" style="background-color:#1E3A5F;padding:28px 40px;border-bottom:4px solid #FF6B35;">
+              <p style="margin:0;font-size:28px;font-weight:700;color:#ffffff;letter-spacing:1px;">
+                yes<span style="color:#FF6B35;">.cz</span>
+              </p>
+              <p style="margin:4px 0 0 0;font-size:12px;color:#93A8C0;letter-spacing:2px;text-transform:uppercase;">
+                your energy stock
+              </p>
+            </td>
+          </tr>
+
+          <!-- ORANŽOVÝ PRUH s názvem -->
+          <tr>
+            <td align="center" style="background-color:#FF6B35;padding:14px 40px;">
+              <p style="margin:0;color:#ffffff;font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;">
+                Nová poptávka – zadejte svou nabídku
+              </p>
+            </td>
+          </tr>
+
+          <!-- TĚLO EMAILU -->
+          <tr>
+            <td style="padding:36px 40px 28px 40px;">
+
+              <!-- Pozdrav -->
+              <p style="margin:0 0 20px 0;font-size:16px;color:#1E3A5F;font-weight:600;">
+                Dobrý den, {{dodavatel}},
+              </p>
+
+              <p style="margin:0 0 24px 0;font-size:15px;color:#374151;line-height:1.6;">
+                máme pro vás novou poptávku od zákazníka. Nabídku musíte zadat
+                <strong style="color:#FF6B35;">do {{uzaverka}} do 12:00</strong>.
+                Každý dodavatel vidí pouze svou vlastní nabídku.
+              </p>
+
+              <!-- Detail poptávky -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                style="background-color:#F8F9FA;border-radius:8px;border-left:4px solid #FF6B35;margin-bottom:28px;">
+                <tr>
+                  <td style="padding:20px 24px;">
+                    <p style="margin:0 0 14px 0;font-size:13px;font-weight:700;color:#1E3A5F;
+                               text-transform:uppercase;letter-spacing:0.8px;">
+                      Detail poptávky
+                    </p>
+                    <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="padding:4px 0;font-size:14px;color:#6B7280;width:140px;">Značka:</td>
+                        <td style="padding:4px 0;font-size:14px;color:#1E3A5F;font-weight:600;">{{znacka}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0;font-size:14px;color:#6B7280;vertical-align:top;">Produkty:</td>
+                        <td style="padding:4px 0;font-size:14px;color:#1E3A5F;font-weight:600;">{{specifikace}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0;font-size:14px;color:#6B7280;">Termín dodání:</td>
+                        <td style="padding:4px 0;font-size:14px;color:#1E3A5F;font-weight:600;">{{pozadovany_termin}}</td>
+                      </tr>
+                      <tr>
+                        <td style="padding:4px 0;font-size:14px;color:#6B7280;">Uzávěrka:</td>
+                        <td style="padding:4px 0;font-size:14px;color:#FF6B35;font-weight:700;">{{uzaverka}} do 12:00</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA tlačítko -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:28px;">
+                <tr>
+                  <td align="center">
+                    <a href="{{nabidka_url}}"
+                       style="display:inline-block;background-color:#FF6B35;color:#ffffff;
+                              font-size:16px;font-weight:700;text-decoration:none;
+                              padding:14px 40px;border-radius:8px;letter-spacing:0.3px;">
+                      Zadat nabídku →
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top:10px;">
+                    <p style="margin:0;font-size:12px;color:#9CA3AF;">
+                      Nebo zkopírujte odkaz: <span style="color:#FF6B35;">{{nabidka_url}}</span>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Upozornění -->
+              <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                style="background-color:#FFF7ED;border-radius:8px;border:1px solid #FED7AA;margin-bottom:24px;">
+                <tr>
+                  <td style="padding:14px 18px;font-size:13px;color:#92400E;line-height:1.5;">
+                    ⚠️ <strong>Cena musí být nejnižší možná</strong> – každý dodavatel má právo zadat
+                    pouze jednu nabídku. Po uzávěrce zákazník vybírá vítěze.
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0;font-size:14px;color:#6B7280;line-height:1.6;">
+                Dotazy? Kontaktujte nás na
+                <a href="tel:+420608887277" style="color:#FF6B35;text-decoration:none;font-weight:600;">+420 608 887 277</a>
+                nebo
+                <a href="mailto:info@yes.cz" style="color:#FF6B35;text-decoration:none;font-weight:600;">info@yes.cz</a>.
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="background-color:#1E3A5F;padding:20px 40px;border-top:3px solid #FF6B35;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td style="font-size:13px;color:#93A8C0;line-height:1.8;">
+                    <strong style="color:#ffffff;">yes.cz</strong> – your energy stock<br>
+                    <a href="tel:+420608887277" style="color:#FF6B35;text-decoration:none;">+420 608 887 277</a>
+                    &nbsp;·&nbsp;
+                    <a href="mailto:info@yes.cz" style="color:#FF6B35;text-decoration:none;">info@yes.cz</a>
+                    &nbsp;·&nbsp;
+                    <a href="https://www.yes.cz" style="color:#FF6B35;text-decoration:none;">www.yes.cz</a>
+                  </td>
+                  <td align="right" style="font-size:11px;color:#4A6A8A;vertical-align:bottom;">
+                    &copy; 2026 yes.cz
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table>
+        <!-- /EMAIL KARTA -->
+
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>

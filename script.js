@@ -120,6 +120,8 @@ function showFieldError(fieldName, message) {
     if (errorEl) {
         errorEl.textContent = message;
         errorEl.classList.add('active');
+        const group = errorEl.closest('.form-group');
+        if (group) group.classList.add('field-error');
     }
 
     let input;
@@ -143,6 +145,8 @@ function clearFieldError(fieldName) {
     if (errorEl) {
         errorEl.textContent = '';
         errorEl.classList.remove('active');
+        const group = errorEl.closest('.form-group');
+        if (group) group.classList.remove('field-error');
     }
 
     let input;
@@ -173,7 +177,7 @@ function clearAllErrors() {
 
 async function loadBrands() {
     if (!CONFIG.BRANDS_API_URL) {
-        brands = CONFIG.FALLBACK_BRANDS.slice().sort();
+        brands = ['Bez značky'].concat(CONFIG.FALLBACK_BRANDS.slice().sort());
         log('Použity fallback značky:', brands.length);
         return;
     }
@@ -197,15 +201,15 @@ async function loadBrands() {
         const data = await response.json();
 
         if (Array.isArray(data)) {
-            brands = data.map(item =>
+            brands = ['Bez značky'].concat(data.map(item =>
                 typeof item === 'string' ? item : (item.name || item.Name || item.znacka || '')
-            ).filter(Boolean).sort();
+            ).filter(Boolean).sort());
         } else if (data.brands && Array.isArray(data.brands)) {
-            brands = data.brands.filter(Boolean).sort();
+            brands = ['Bez značky'].concat(data.brands.filter(Boolean).sort());
         } else if (data.records && Array.isArray(data.records)) {
-            brands = data.records.map(r =>
+            brands = ['Bez značky'].concat(data.records.map(r =>
                 r.fields ? (r.fields.name || r.fields.Name || r.fields.znacka || '') : ''
-            ).filter(Boolean).sort();
+            ).filter(Boolean).sort());
         } else {
             throw new Error('Neočekávaný formát dat');
         }
@@ -213,7 +217,7 @@ async function loadBrands() {
         log('Načteno značek z API:', brands.length);
     } catch (error) {
         log('Chyba při načítání značek:', error);
-        brands = CONFIG.FALLBACK_BRANDS.slice().sort();
+        brands = ['Bez značky'].concat(CONFIG.FALLBACK_BRANDS.slice().sort());
         log('Použity fallback značky po chybě');
     } finally {
         znackaLoading.style.display = 'none';

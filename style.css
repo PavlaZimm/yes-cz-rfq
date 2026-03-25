@@ -312,6 +312,10 @@ body {
     color: var(--orange-primary);
 }
 
+.form-group.field-error .required {
+    color: var(--red-error);
+}
+
 .optional {
     color: var(--text-secondary);
     font-weight: 400;
