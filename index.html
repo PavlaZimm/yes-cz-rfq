@@ -75,7 +75,7 @@
                         <!-- Značka (Brand dropdown) -->
                         <div class="form-group">
                             <label for="znacka-input" class="form-label">
-                                Značka <span class="required">*</span>
+                                Značka
                             </label>
                             <div class="dropdown-wrapper" id="znackaDropdown">
                                 <input
@@ -83,9 +83,8 @@
                                     id="znacka-input"
                                     class="form-input dropdown-input"
                                     autocomplete="off"
-                                    required
                                     placeholder="Začněte psát název značky..."
-                                    aria-required="true"
+                                    aria-required="false"
                                     aria-invalid="false"
                                     aria-describedby="znacka-error znacka-hint"
                                     aria-haspopup="listbox"
@@ -97,7 +96,7 @@
                                 <ul id="znacka-list" class="dropdown-list" role="listbox" aria-label="Značky"></ul>
                                 <input type="hidden" id="znacka" name="znacka" value="">
                             </div>
-                            <span id="znacka-hint" class="form-hint">Vyberte značku ze seznamu nebo začněte psát pro vyhledání</span>
+                            <span id="znacka-hint" class="form-hint">Volitelné – vyberte značku ze seznamu nebo začněte psát pro vyhledání</span>
                             <span id="znacka-error" class="form-error" role="alert"></span>
                             <div id="znacka-loading" class="dropdown-loading" style="display: none;">
                                 <span class="spinner-sm"></span> Načítám značky...
@@ -239,6 +238,25 @@
                                     aria-describedby="ico-error"
                                 >
                                 <span id="ico-error" class="form-error" role="alert"></span>
+                            </div>
+
+                            <!-- Adresa místa dodání -->
+                            <div class="form-group">
+                                <label for="adresa_dodani" class="form-label">
+                                    Adresa místa dodání <span class="optional">(volitelné)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="adresa_dodani"
+                                    name="adresa_dodani"
+                                    class="form-input"
+                                    maxlength="300"
+                                    placeholder="Ulice, město, PSČ"
+                                    aria-required="false"
+                                    aria-invalid="false"
+                                    aria-describedby="adresa-dodani-hint"
+                                >
+                                <span id="adresa-dodani-hint" class="form-hint">Vyplňte pouze pokud je adresa dodání jiná než adresa společnosti</span>
                             </div>
 
                             <!-- Jméno a příjmení -->

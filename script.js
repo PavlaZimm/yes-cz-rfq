@@ -68,7 +68,7 @@ const inputs = {
     jmeno: document.getElementById('zakaznik_jmeno'),
     email: document.getElementById('zakaznik_email'),
     telefon: document.getElementById('zakaznik_telefon'),
-    mistoDodani: document.getElementById('misto_dodani'),
+    adresaDodani: document.getElementById('adresa_dodani'),
     poznamka: document.getElementById('poznamka')
 };
 
@@ -515,7 +515,7 @@ function calculateAukceDeadline() {
 function validateZnacka() {
     const value = inputs.znacka.value || inputs.znackaInput.value.trim();
     if (!value) {
-        return 'Vyberte značku ze seznamu';
+        return null; // značka je nepovinná
     }
     const isValid = brands.some(b => b.toLowerCase() === value.toLowerCase());
     if (!isValid) {
@@ -781,7 +781,7 @@ function preprocessData() {
         customer_name: inputs.jmeno.value.trim(),
         customer_email: inputs.email.value.trim(),
         customer_phone: inputs.telefon.value.replace(/\D/g, ''),
-        misto_dodani: inputs.mistoDodani.value.trim() || '',
+        adresa_dodani: inputs.adresaDodani.value.trim() || '',
         note: inputs.poznamka.value.trim() || '',
         timestamp: new Date().toISOString()
     };
@@ -852,7 +852,8 @@ function saveContactInfo() {
             ico: inputs.ico.value.trim(),
             jmeno: inputs.jmeno.value.trim(),
             email: inputs.email.value.trim(),
-            telefon: inputs.telefon.value
+            telefon: inputs.telefon.value,
+            adresaDodani: inputs.adresaDodani.value.trim()
         };
         sessionStorage.setItem('rfq_contact', JSON.stringify(contact));
     } catch (e) {
@@ -870,6 +871,7 @@ function restoreContactInfo() {
             if (contact.jmeno) inputs.jmeno.value = contact.jmeno;
             if (contact.email) inputs.email.value = contact.email;
             if (contact.telefon) inputs.telefon.value = contact.telefon;
+            if (contact.adresaDodani) inputs.adresaDodani.value = contact.adresaDodani;
         }
     } catch (e) {
         // sessionStorage not available
@@ -956,10 +958,18 @@ function showInlineSuccess(brandName) {
     formCard.style.display = 'none';
 
     const successMsg = document.getElementById('successMessage');
-    if (submissionCount > 1) {
-        successMsg.textContent = 'Poptávka pro značku "' + brandName + '" byla odeslána (' + submissionCount + '. poptávka v této relaci).';
+    if (brandName) {
+        if (submissionCount > 1) {
+            successMsg.textContent = 'Poptávka pro značku "' + brandName + '" byla odeslána (' + submissionCount + '. poptávka v této relaci).';
+        } else {
+            successMsg.textContent = 'Poptávka pro značku "' + brandName + '" byla úspěšně odeslána. Ozveme se vám s nabídkou.';
+        }
     } else {
-        successMsg.textContent = 'Poptávka pro značku "' + brandName + '" byla úspěšně odeslána. Ozveme se vám s nabídkou.';
+        if (submissionCount > 1) {
+            successMsg.textContent = 'Poptávka byla odeslána (' + submissionCount + '. poptávka v této relaci).';
+        } else {
+            successMsg.textContent = 'Poptávka byla úspěšně odeslána. Ozveme se vám s nabídkou.';
+        }
     }
 
     successAlert.style.display = 'flex';
