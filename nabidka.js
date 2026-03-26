@@ -445,8 +445,7 @@ async function declineOffer() {
 
     var data = {
         record_id: params.record_id,
-        declined: true,
-        datum_odeslani: new Date().toISOString()
+        stav: 'Odmítnuta'
     };
 
     log('Odmítám účast:', data);
@@ -472,8 +471,8 @@ async function declineOffer() {
 
         log('Odmítnutí odesláno');
         offerCard.style.display = 'none';
-        document.getElementById('successTitle').textContent = 'Děkujeme za informaci';
-        document.getElementById('successPerex').textContent = 'Máte možnost se později připojit.';
+        document.getElementById('successTitle').textContent = 'Děkujeme';
+        document.getElementById('successPerex').textContent = 'Vaše odmítnutí bylo zaznamenáno.';
         successCard.style.display = 'block';
         successCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
