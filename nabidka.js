@@ -58,6 +58,102 @@ const params = {
 // Parsed products (shared between render and submit)
 var parsedProducts = [];
 
+// Prevent double submission
+var isSubmitting = false;
+
+// ============================================
+// JAZYKOVÁ DETEKCE
+// ============================================
+var isCzech = (navigator.language || '').startsWith('cs') || (navigator.language || '').startsWith('sk');
+
+var CS_NABIDKA = {
+    invalidTitle: 'Neplatný odkaz',
+    invalidText: 'Neplatný odkaz. Zkontrolujte email s pozvánkou.',
+    expiredTitle: 'Uzávěrka skončila',
+    expiredText: 'Uzávěrka pro tuto poptávku skončila. Děkujeme za zájem.',
+    sectionDetail: 'Detail poptávky',
+    labelDodavatel: 'Dodavatel',
+    labelZnacka: 'Značka',
+    labelDeadline: 'Uzávěrka nabídek',
+    sectionOffer: 'Vaše nabídka',
+    labelPrices: 'Cena za položky v EUR bez DPH',
+    pricesHintTop: 'Cenu uveďte již nejnižší možnou, je možná pouze jediná nabídka.',
+    pricesHintBottom: 'Cena včetně dopravy na sklad: Sparkinvest s.r.o., Kozomín 501, 277 45 Kozomín',
+    noProducts: 'Žádné produkty',
+    labelBaleni: 'Způsob balení',
+    baleniPlaceholder: 'Např. na paletě, v kartonu...',
+    labelPalet: 'Počet palet',
+    labelRozmery: 'Rozměry zásilky (cm)',
+    rozmeryPlaceholder: 'délka × šířka × výška (cm), např. 120 × 80 × 150',
+    rozmeryHint: 'délka × šířka × výška, např. 120 × 80 × 150',
+    labelVaha: 'Váha celkem (kg)',
+    labelNote: 'Poznámka',
+    noteHint: 'Maximálně 1000 znaků',
+    submitBtn: 'Odeslat nabídku',
+    submitting: 'Odesílám...',
+    declineBtn: 'Odmítám se účastnit',
+    successTitle: 'Děkujeme!',
+    successText: 'Nabídka odeslána! Děkujeme.',
+    declineTitle: 'Vaše odmítnutí bylo zaznamenáno',
+    declineText: 'Děkujeme za odpověď.',
+    optional: '(volitelně)',
+    required: '*',
+    // Validation
+    errPrices: 'Vyplňte cenu u všech položek. Cena musí být větší než 0.',
+    errBaleni: 'Vyplňte způsob balení.',
+    errPalet: 'Zadejte počet palet (min. 1).',
+    errRozmery: 'Vyplňte rozměry zásilky.',
+    errVaha: 'Zadejte váhu (větší než 0).',
+    errGeneral: 'Chyba při odesílání. Zkuste znovu nebo kontaktujte support.',
+    errTimeout: 'Požadavek trval příliš dlouho. Zkuste to znovu.',
+    errNetwork: 'Nepodařilo se odeslat nabídku. Zkontrolujte připojení.'
+};
+
+var EN_NABIDKA = {
+    invalidTitle: 'Invalid link',
+    invalidText: 'Invalid link. Please check the invitation email.',
+    expiredTitle: 'Deadline expired',
+    expiredText: 'The deadline for this request has passed. Thank you for your interest.',
+    sectionDetail: 'Request details',
+    labelDodavatel: 'Supplier',
+    labelZnacka: 'Brand',
+    labelDeadline: 'Offer deadline',
+    sectionOffer: 'Your offer',
+    labelPrices: 'Price per item in EUR excl. VAT',
+    pricesHintTop: 'Please enter the lowest possible price, only one offer is allowed.',
+    pricesHintBottom: 'Price including delivery to warehouse: Sparkinvest s.r.o., Kozomín 501, 277 45 Kozomín',
+    noProducts: 'No products',
+    labelBaleni: 'Packaging method',
+    baleniPlaceholder: 'E.g. on pallet, in carton...',
+    labelPalet: 'Number of pallets',
+    labelRozmery: 'Shipment dimensions (cm)',
+    rozmeryPlaceholder: 'length × width × height (cm), e.g. 120 × 80 × 150',
+    rozmeryHint: 'length × width × height, e.g. 120 × 80 × 150',
+    labelVaha: 'Total weight (kg)',
+    labelNote: 'Note',
+    noteHint: 'Maximum 1000 characters',
+    submitBtn: 'Submit offer',
+    submitting: 'Submitting...',
+    declineBtn: 'Decline participation',
+    successTitle: 'Thank you!',
+    successText: 'Offer submitted! Thank you.',
+    declineTitle: 'Your decline has been recorded',
+    declineText: 'Thank you for your response.',
+    optional: '(optional)',
+    required: '*',
+    // Validation
+    errPrices: 'Fill in the price for all items. Price must be greater than 0.',
+    errBaleni: 'Fill in the packaging method.',
+    errPalet: 'Enter the number of pallets (min. 1).',
+    errRozmery: 'Fill in the shipment dimensions.',
+    errVaha: 'Enter the weight (greater than 0).',
+    errGeneral: 'Error submitting. Please try again or contact support.',
+    errTimeout: 'Request took too long. Please try again.',
+    errNetwork: 'Failed to submit the offer. Check your connection.'
+};
+
+var tn = isCzech ? CS_NABIDKA : EN_NABIDKA;
+
 // ============================================
 // UTILITY FUNKCE
 // ============================================
@@ -194,7 +290,7 @@ function renderProductPrices() {
     if (parsedProducts.length === 0) {
         var emptyRow = document.createElement('div');
         emptyRow.className = 'product-price-row';
-        emptyRow.innerHTML = '<span class="product-price-label">Žádné produkty</span>';
+        emptyRow.innerHTML = '<span class="product-price-label">' + tn.noProducts + '</span>';
         productPricesContainer.appendChild(emptyRow);
         return;
     }
@@ -270,7 +366,7 @@ function validatePrices() {
     });
 
     if (!allValid) {
-        return 'Vyplňte cenu u všech položek. Cena musí být větší než 0.';
+        return tn.errPrices;
     }
     return null;
 }
@@ -284,24 +380,24 @@ function validateShippingFields() {
     clearFieldError(vahaKgError);
 
     if (!zpusobBaleniInput.value.trim()) {
-        showFieldError(zpusobBaleniError, 'Vyplňte způsob balení.');
+        showFieldError(zpusobBaleniError, tn.errBaleni);
         valid = false;
     }
 
     var pocet = parseInt(pocetPaletInput.value, 10);
     if (!pocetPaletInput.value || isNaN(pocet) || pocet < 1) {
-        showFieldError(pocetPaletError, 'Zadejte počet palet (min. 1).');
+        showFieldError(pocetPaletError, tn.errPalet);
         valid = false;
     }
 
     if (!rozmerPaletyInput.value.trim()) {
-        showFieldError(rozmerPaletyError, 'Vyplňte rozměry palety.');
+        showFieldError(rozmerPaletyError, tn.errRozmery);
         valid = false;
     }
 
     var vaha = parseFloat(vahaKgInput.value);
     if (!vahaKgInput.value || isNaN(vaha) || vaha <= 0) {
-        showFieldError(vahaKgError, 'Zadejte váhu (větší než 0).');
+        showFieldError(vahaKgError, tn.errVaha);
         valid = false;
     }
 
@@ -345,6 +441,7 @@ function setLoadingState(loading) {
 // ============================================
 
 async function submitOffer() {
+    if (isSubmitting) return;
     clearFieldError(pricesError);
 
     var error = validatePrices();
@@ -389,6 +486,7 @@ async function submitOffer() {
     };
 
     log('Odesílám nabídku:', data);
+    isSubmitting = true;
     setLoadingState(true);
 
     try {
@@ -411,23 +509,24 @@ async function submitOffer() {
 
         log('Nabídka odeslána úspěšně');
         offerCard.style.display = 'none';
-        document.getElementById('successTitle').textContent = 'Děkujeme!';
-        document.getElementById('successPerex').textContent = 'Nabídka odeslána! Děkujeme.';
+        document.getElementById('successTitle').textContent = tn.successTitle;
+        document.getElementById('successPerex').textContent = tn.successText;
         successCard.style.display = 'block';
         successCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     } catch (err) {
         log('Error:', err);
 
-        var errorMsg = 'Chyba při odesílání. Zkuste znovu nebo kontaktujte support.';
+        var errorMsg = tn.errGeneral;
 
         if (err.name === 'AbortError') {
-            errorMsg = 'Požadavek trval příliš dlouho. Zkuste to znovu.';
+            errorMsg = tn.errTimeout;
         } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-            errorMsg = 'Nepodařilo se odeslat nabídku. Zkontrolujte připojení.';
+            errorMsg = tn.errNetwork;
         }
 
         showError(errorMsg);
+        isSubmitting = false;
         setLoadingState(false);
     }
 }
@@ -437,15 +536,21 @@ async function submitOffer() {
 // ============================================
 
 async function declineOffer() {
+    if (isSubmitting) return;
+
     if (isExpired(params.uzaverka)) {
         offerCard.style.display = 'none';
         expiredCard.style.display = 'block';
         return;
     }
 
+    isSubmitting = true;
+
     var data = {
         record_id: params.record_id,
-        stav: 'Odmítnuta'
+        dodavatel: params.dodavatel ? decodeURIComponent(params.dodavatel) : '',
+        stav: 'Odmítnuta',
+        datum_odeslani: new Date().toISOString()
     };
 
     log('Odmítám účast:', data);
@@ -471,14 +576,15 @@ async function declineOffer() {
 
         log('Odmítnutí odesláno');
         offerCard.style.display = 'none';
-        document.getElementById('successTitle').textContent = 'Děkujeme';
-        document.getElementById('successPerex').textContent = 'Vaše odmítnutí bylo zaznamenáno.';
+        document.getElementById('successTitle').textContent = tn.declineTitle;
+        document.getElementById('successPerex').textContent = tn.declineText;
         successCard.style.display = 'block';
         successCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     } catch (err) {
         log('Error:', err);
-        showError('Chyba při odesílání. Zkuste znovu nebo kontaktujte support.');
+        showError(tn.errGeneral);
+        isSubmitting = false;
         setLoadingState(false);
     }
 }
@@ -513,11 +619,86 @@ poznamkaInput.addEventListener('input', function () {
 });
 
 // ============================================
+// PŘEKLAD UI
+// ============================================
+
+function applyNabidkaTranslations() {
+    if (isCzech) return;
+
+    document.documentElement.lang = 'en';
+    document.title = tn.submitBtn + ' - Yes.cz';
+
+    // Invalid link card
+    var invalidTitle = invalidLinkCard.querySelector('.form-title');
+    if (invalidTitle) invalidTitle.textContent = tn.invalidTitle;
+    var invalidText = invalidLinkCard.querySelector('.form-subtitle');
+    if (invalidText) invalidText.textContent = tn.invalidText;
+
+    // Expired card
+    var expTitle = expiredCard.querySelector('.form-title');
+    if (expTitle) expTitle.textContent = tn.expiredTitle;
+    var expText = expiredCard.querySelector('.form-subtitle');
+    if (expText) expText.textContent = tn.expiredText;
+
+    // Detail section
+    var legends = document.querySelectorAll('.form-section-title');
+    if (legends[0]) legends[0].textContent = tn.sectionDetail;
+    if (legends[1]) legends[1].textContent = tn.sectionOffer;
+
+    // Detail labels
+    var dodavLabel = document.querySelector('#detail-dodavatel .detail-label');
+    if (dodavLabel) dodavLabel.textContent = tn.labelDodavatel;
+    var znackaLabel = document.querySelector('.detail-item:nth-child(2) .detail-label');
+    if (znackaLabel) znackaLabel.textContent = tn.labelZnacka;
+    var deadlineLabel = document.querySelector('.deadline-label');
+    if (deadlineLabel) deadlineLabel.textContent = tn.labelDeadline;
+
+    // Price section
+    var priceLabel = document.querySelector('label[class="form-label"]:first-of-type') || productPricesContainer?.closest('.form-group')?.querySelector('.form-label');
+    if (priceLabel) priceLabel.innerHTML = tn.labelPrices + ' <span class="required">' + tn.required + '</span>';
+    var priceHintTop = productPricesContainer?.closest('.form-group')?.querySelector('.form-hint');
+    if (priceHintTop) priceHintTop.textContent = tn.pricesHintTop;
+    var priceHintBottom = document.getElementById('prices-hint');
+    if (priceHintBottom) priceHintBottom.textContent = tn.pricesHintBottom;
+
+    // Shipping fields
+    var baleniLabel = document.querySelector('label[for="zpusob_baleni"]');
+    if (baleniLabel) baleniLabel.innerHTML = tn.labelBaleni + ' <span class="required">' + tn.required + '</span>';
+    zpusobBaleniInput.placeholder = tn.baleniPlaceholder;
+
+    var paletLabel = document.querySelector('label[for="pocet_palet"]');
+    if (paletLabel) paletLabel.innerHTML = tn.labelPalet + ' <span class="required">' + tn.required + '</span>';
+
+    var rozmeryLabel = document.querySelector('label[for="rozmery_palety"]');
+    if (rozmeryLabel) rozmeryLabel.innerHTML = tn.labelRozmery + ' <span class="required">' + tn.required + '</span>';
+    rozmerPaletyInput.placeholder = tn.rozmeryPlaceholder;
+    var rozmeryHint = document.getElementById('rozmery-palety-hint');
+    if (rozmeryHint) rozmeryHint.textContent = tn.rozmeryHint;
+
+    var vahaLabel = document.querySelector('label[for="vaha_kg"]');
+    if (vahaLabel) vahaLabel.innerHTML = tn.labelVaha + ' <span class="required">' + tn.required + '</span>';
+
+    // Note
+    var noteLabel = document.querySelector('label[for="nabidka_poznamka"]');
+    if (noteLabel) noteLabel.innerHTML = tn.labelNote + ' <span class="optional">' + tn.optional + '</span>';
+    var noteHint = document.getElementById('nabidka-poznamka-hint');
+    if (noteHint) noteHint.textContent = tn.noteHint;
+
+    // Buttons
+    if (btnText) btnText.textContent = tn.submitBtn;
+    var loaderSpan = submitBtn.querySelector('.btn-loader');
+    if (loaderSpan) loaderSpan.innerHTML = '<span class="spinner"></span> ' + tn.submitting;
+    if (declineBtn) declineBtn.textContent = tn.declineBtn;
+}
+
+// ============================================
 // INICIALIZACE
 // ============================================
 
 function init() {
     log('Initializing nabidka page...', params);
+
+    applyNabidkaTranslations();
 
     // 1. Kontrola record_id
     if (!params.record_id) {
