@@ -1297,3 +1297,11 @@ body {
     white-space: nowrap;
     border-width: 0;
 }
+
+/* Readonly prefilled fields (doprava) */
+.input-readonly {
+    background-color: var(--bg-secondary, #f5f5f5);
+    color: var(--text-secondary, #666);
+    cursor: not-allowed;
+    border-color: var(--border-color, #ddd);
+}
