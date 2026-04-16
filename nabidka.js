@@ -101,6 +101,9 @@ var CS_NABIDKA = {
     declineText: 'Děkujeme za odpověď.',
     optional: '(volitelně)',
     required: '*',
+    errorTitle: 'Chyba',
+    submitAriaLabel: 'Odeslat nabídku',
+    priceFor: 'Cena za ',
     // Validation
     errPrices: 'Vyplňte cenu u všech položek. Cena musí být větší než 0.',
     errBaleni: 'Vyplňte způsob balení.',
@@ -144,6 +147,9 @@ var EN_NABIDKA = {
     declineText: 'Thank you for your response.',
     optional: '(optional)',
     required: '*',
+    errorTitle: 'Error',
+    submitAriaLabel: 'Submit offer',
+    priceFor: 'Price for ',
     // Validation
     errPrices: 'Fill in the price for all items. Price must be greater than 0.',
     errBaleni: 'Fill in the packaging method.',
@@ -324,7 +330,7 @@ function renderProductPrices() {
         input.step = '0.01';
         input.required = true;
         input.setAttribute('data-index', index);
-        input.setAttribute('aria-label', 'Cena za ' + spec);
+        input.setAttribute('aria-label', tn.priceFor + spec);
 
         var suffix = document.createElement('span');
         suffix.className = 'input-suffix';
@@ -687,8 +693,13 @@ function applyNabidkaTranslations() {
     var noteHint = document.getElementById('nabidka-poznamka-hint');
     if (noteHint) noteHint.textContent = tn.noteHint;
 
+    // Error alert
+    var errorStrong = errorAlert.querySelector('strong');
+    if (errorStrong) errorStrong.textContent = tn.errorTitle;
+
     // Buttons
     if (btnText) btnText.textContent = tn.submitBtn;
+    submitBtn.setAttribute('aria-label', tn.submitAriaLabel);
     var loaderSpan = submitBtn.querySelector('.btn-loader');
     if (loaderSpan) loaderSpan.innerHTML = '<span class="spinner"></span> ' + tn.submitting;
     if (declineBtn) declineBtn.textContent = tn.declineBtn;
