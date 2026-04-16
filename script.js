@@ -39,7 +39,10 @@ const CONFIG = {
 // ============================================
 // JAZYKOVÁ DETEKCE
 // ============================================
-const isCzech = (navigator.language || '').startsWith('cs') || (navigator.language || '').startsWith('sk');
+const langParam = new URLSearchParams(window.location.search).get('lang');
+const isCzech = langParam
+    ? (langParam === 'cs' || langParam === 'sk')
+    : ((navigator.language || '').startsWith('cs') || (navigator.language || '').startsWith('sk'));
 
 const CS = {
     pageTitle: 'Poptat cenu',
