@@ -486,10 +486,30 @@ function applyDopravaTranslations() {
 // INICIALIZACE
 // ============================================
 
+function setupLangSwitcher() {
+    var buttons = document.querySelectorAll('.lang-btn');
+    buttons.forEach(function (btn) {
+        var lang = btn.getAttribute('data-lang');
+        if ((isCzech && lang === 'cs') || (!isCzech && lang === 'en')) {
+            btn.classList.add('active');
+            btn.setAttribute('aria-pressed', 'true');
+        } else {
+            btn.setAttribute('aria-pressed', 'false');
+        }
+        btn.addEventListener('click', function () {
+            if (btn.classList.contains('active')) return;
+            var url = new URL(window.location.href);
+            url.searchParams.set('lang', lang);
+            window.location.href = url.toString();
+        });
+    });
+}
+
 function init() {
     log('Initializing doprava page...', params);
 
     applyDopravaTranslations();
+    setupLangSwitcher();
 
     // 1. Kontrola record_id
     if (!params.record_id) {

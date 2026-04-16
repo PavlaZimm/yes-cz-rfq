@@ -1432,10 +1432,30 @@ function applyTranslations() {
 // INICIALIZACE
 // ============================================
 
+function setupLangSwitcher() {
+    const buttons = document.querySelectorAll('.lang-btn');
+    buttons.forEach(function (btn) {
+        const lang = btn.getAttribute('data-lang');
+        if ((isCzech && lang === 'cs') || (!isCzech && lang === 'en')) {
+            btn.classList.add('active');
+            btn.setAttribute('aria-pressed', 'true');
+        } else {
+            btn.setAttribute('aria-pressed', 'false');
+        }
+        btn.addEventListener('click', function () {
+            if (btn.classList.contains('active')) return;
+            const url = new URL(window.location.href);
+            url.searchParams.set('lang', lang);
+            window.location.href = url.toString();
+        });
+    });
+}
+
 async function init() {
     log('Initializing RFQ form...');
 
     applyTranslations();
+    setupLangSwitcher();
     setupDatePicker();
     updatePoznamkaCounter();
     restoreContactInfo();
