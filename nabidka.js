@@ -64,7 +64,10 @@ var isSubmitting = false;
 // ============================================
 // JAZYKOVÁ DETEKCE
 // ============================================
-var isCzech = (navigator.language || '').startsWith('cs') || (navigator.language || '').startsWith('sk');
+var langParam = new URLSearchParams(window.location.search).get('lang');
+var isCzech = langParam
+    ? (langParam === 'cs' || langParam === 'sk')
+    : ((navigator.language || '').startsWith('cs') || (navigator.language || '').startsWith('sk'));
 
 var CS_NABIDKA = {
     invalidTitle: 'Neplatný odkaz',
