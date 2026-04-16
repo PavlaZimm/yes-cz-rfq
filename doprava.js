@@ -92,6 +92,8 @@ var CS_DOPRAVA = {
     successText: 'Objednávka dopravy byla úspěšně odeslána.',
     optional: '(volitelně)',
     required: '*',
+    errorTitle: 'Chyba',
+    submitAriaLabel: 'Odeslat objednávku dopravy',
     // Validation
     errPickup: 'Vyplňte adresu vyzvednutí.',
     errDelivery: 'Vyplňte adresu dodání.',
@@ -131,6 +133,8 @@ var EN_DOPRAVA = {
     successText: 'Transport order was successfully submitted.',
     optional: '(optional)',
     required: '*',
+    errorTitle: 'Error',
+    submitAriaLabel: 'Submit transport order',
     // Validation
     errPickup: 'Fill in the pickup address.',
     errDelivery: 'Fill in the delivery address.',
@@ -460,9 +464,20 @@ function applyDopravaTranslations() {
     var noteHint = document.getElementById('poznamka-hint');
     if (noteHint) noteHint.textContent = td.noteHint;
 
+    // Error alert
+    var errorStrong = errorAlert.querySelector('strong');
+    if (errorStrong) errorStrong.textContent = td.errorTitle;
+
+    // Success card (initial title text)
+    var successTitleEl = document.querySelector('#successCard .success-title');
+    if (successTitleEl) successTitleEl.textContent = td.successTitle;
+    var successPerexEl = document.querySelector('#successCard .success-perex');
+    if (successPerexEl) successPerexEl.textContent = td.successText;
+
     // Submit button
     var btnTextEl = submitBtn.querySelector('.btn-text');
     if (btnTextEl) btnTextEl.textContent = td.submitBtn;
+    submitBtn.setAttribute('aria-label', td.submitAriaLabel);
     var loaderSpan = submitBtn.querySelector('.btn-loader');
     if (loaderSpan) loaderSpan.innerHTML = '<span class="spinner"></span> ' + td.submitting;
 }

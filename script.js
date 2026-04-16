@@ -86,6 +86,14 @@ const CS = {
     formFooter: 'Odesláním poptávky souhlasíte se zpracováním osobních údajů.',
     optional: '(volitelné)',
     required: '*',
+    notePlaceholder: 'Doplňující informace k poptávce...',
+    errorTitle: 'Chyba',
+    closeAlert: 'Zavřít',
+    submitAriaLabel: 'Odeslat poptávku',
+    loadingBrands: 'Načítám značky...',
+    labelMistoDodani: 'Místo dodání',
+    mistoDodaniPlaceholder: 'Např. Praha, Brno, adresa skladu...',
+    mistoDodaniHint: 'Místo, kam má být zásilka doručena',
     submitAnother: 'Poptat další značku',
     successTitle: 'Poptávka odeslána!',
     successBrand: 'Poptávka pro značku "{brand}" byla úspěšně odeslána. Ozveme se vám s nabídkou.',
@@ -162,6 +170,14 @@ const EN = {
     formFooter: 'By submitting a request you agree to the processing of personal data.',
     optional: '(optional)',
     required: '*',
+    notePlaceholder: 'Additional information about the request...',
+    errorTitle: 'Error',
+    closeAlert: 'Close',
+    submitAriaLabel: 'Submit request',
+    loadingBrands: 'Loading brands...',
+    labelMistoDodani: 'Delivery location',
+    mistoDodaniPlaceholder: 'E.g. Prague, Brno, warehouse address...',
+    mistoDodaniHint: 'Location where the shipment should be delivered',
     submitAnother: 'Request another brand',
     successTitle: 'Request sent!',
     successBrand: 'Request for brand "{brand}" was successfully sent. We will get back to you with an offer.',
@@ -561,17 +577,17 @@ function addProduktRow() {
     newRow.innerHTML =
         '<div class="produkt-fields">' +
             '<input type="text" class="form-input produkt-spec" ' +
-                'placeholder="Specifikace produktu (např. Panel XYZ 400W)" ' +
+                'placeholder="' + t.productSpecPlaceholder + '" ' +
                 'required maxlength="500" ' +
-                'aria-label="Specifikace produktu ' + (produktCounter + 1) + '">' +
+                'aria-label="' + (isCzech ? 'Specifikace produktu ' : 'Product specification ') + (produktCounter + 1) + '">' +
             '<div class="input-wrapper produkt-qty-wrapper">' +
                 '<input type="number" class="form-input produkt-qty" ' +
-                    'placeholder="Ks" required min="1" step="1" ' +
-                    'aria-label="Počet kusů produktu ' + (produktCounter + 1) + '">' +
-                '<span class="input-suffix">ks</span>' +
+                    'placeholder="' + t.productQtyPlaceholder + '" required min="1" step="1" ' +
+                    'aria-label="' + (isCzech ? 'Počet kusů produktu ' : 'Quantity for product ') + (produktCounter + 1) + '">' +
+                '<span class="input-suffix">' + (isCzech ? 'ks' : 'pcs') + '</span>' +
             '</div>' +
         '</div>' +
-        '<button type="button" class="produkt-remove-btn" aria-label="Odebrat produkt" title="Odebrat produkt">×</button>';
+        '<button type="button" class="produkt-remove-btn" aria-label="' + (isCzech ? 'Odebrat produkt' : 'Remove product') + '" title="' + (isCzech ? 'Odebrat produkt' : 'Remove product') + '">×</button>';
 
     produktyList.appendChild(newRow);
     updateRemoveButtons();
@@ -1156,17 +1172,17 @@ function resetForNewBrand() {
     initialRow.innerHTML =
         '<div class="produkt-fields">' +
             '<input type="text" class="form-input produkt-spec" ' +
-                'placeholder="Specifikace produktu (např. Panel XYZ 400W)" ' +
+                'placeholder="' + t.productSpecPlaceholder + '" ' +
                 'required maxlength="500" ' +
-                'aria-label="Specifikace produktu 1">' +
+                'aria-label="' + (isCzech ? 'Specifikace produktu 1' : 'Product specification 1') + '">' +
             '<div class="input-wrapper produkt-qty-wrapper">' +
                 '<input type="number" class="form-input produkt-qty" ' +
-                    'placeholder="Ks" required min="1" step="1" ' +
-                    'aria-label="Počet kusů produktu 1">' +
-                '<span class="input-suffix">ks</span>' +
+                    'placeholder="' + t.productQtyPlaceholder + '" required min="1" step="1" ' +
+                    'aria-label="' + (isCzech ? 'Počet kusů produktu 1' : 'Quantity for product 1') + '">' +
+                '<span class="input-suffix">' + (isCzech ? 'ks' : 'pcs') + '</span>' +
             '</div>' +
         '</div>' +
-        '<button type="button" class="produkt-remove-btn" aria-label="Odebrat produkt" title="Odebrat produkt" style="display: none;">×</button>';
+        '<button type="button" class="produkt-remove-btn" aria-label="' + (isCzech ? 'Odebrat produkt' : 'Remove product') + '" title="' + (isCzech ? 'Odebrat produkt' : 'Remove product') + '" style="display: none;">×</button>';
     produktyList.appendChild(initialRow);
 
     // Reset delivery fields
@@ -1319,6 +1335,11 @@ function applyTranslations() {
     addProduktBtn.textContent = t.addProduct;
     document.querySelectorAll('.produkt-spec').forEach(function(el) { el.placeholder = t.productSpecPlaceholder; });
     document.querySelectorAll('.produkt-qty').forEach(function(el) { el.placeholder = t.productQtyPlaceholder; });
+    document.querySelectorAll('.produkt-qty-wrapper .input-suffix').forEach(function(el) { el.textContent = 'pcs'; });
+    document.querySelectorAll('.produkt-remove-btn').forEach(function(el) {
+        el.setAttribute('aria-label', 'Remove product');
+        el.setAttribute('title', 'Remove product');
+    });
 
     // Delivery date
     var terminLabel = document.querySelector('label[for="pozadovany_termin"]');
@@ -1361,14 +1382,36 @@ function applyTranslations() {
     if (phoneLabel) phoneLabel.innerHTML = t.labelPhone + ' <span class="required">' + t.required + '</span>';
     inputs.telefon.placeholder = t.phonePlaceholder;
 
+    // Místo dodání (samostatné pole)
+    var mistoLabel = document.querySelector('label[for="misto_dodani"]');
+    if (mistoLabel) mistoLabel.innerHTML = t.labelMistoDodani + ' <span class="optional">' + t.optional + '</span>';
+    var mistoInput = document.getElementById('misto_dodani');
+    if (mistoInput) mistoInput.placeholder = t.mistoDodaniPlaceholder;
+    var mistoHint = document.getElementById('misto-dodani-hint');
+    if (mistoHint) mistoHint.textContent = t.mistoDodaniHint;
+
     // Note
     var noteLabel = document.querySelector('label[for="poznamka"]');
     if (noteLabel) noteLabel.innerHTML = t.labelNote + ' <span class="optional">' + t.optional + '</span>';
     var noteHint = document.getElementById('poznamka-hint');
     if (noteHint) noteHint.textContent = t.noteHint;
+    inputs.poznamka.placeholder = t.notePlaceholder;
+
+    // Loading brands
+    var loadingBrandsEl = document.getElementById('znacka-loading');
+    if (loadingBrandsEl) {
+        loadingBrandsEl.innerHTML = '<span class="spinner-sm"></span> ' + t.loadingBrands;
+    }
+
+    // Error alert
+    var errorStrong = errorAlert.querySelector('strong');
+    if (errorStrong) errorStrong.textContent = t.errorTitle;
+    var closeBtn = errorAlert.querySelector('.alert-close');
+    if (closeBtn) closeBtn.setAttribute('aria-label', t.closeAlert);
 
     // Submit
     if (btnText) btnText.textContent = t.submitBtn;
+    submitBtn.setAttribute('aria-label', t.submitAriaLabel);
     var loaderText = submitBtn.querySelector('.btn-loader');
     if (loaderText) loaderText.innerHTML = '<span class="spinner"></span> ' + t.submitting;
     var footer = document.querySelector('.form-footer');
@@ -1377,7 +1420,12 @@ function applyTranslations() {
     // Success alert
     var successStrong = successAlert.querySelector('strong');
     if (successStrong) successStrong.textContent = t.successTitle;
-    if (submitAnotherBtn) submitAnotherBtn.textContent = t.submitAnother;
+    var successMsg = document.getElementById('successMessage');
+    if (successMsg) successMsg.textContent = t.successNoBrand;
+    if (submitAnotherBtn) {
+        submitAnotherBtn.textContent = t.submitAnother;
+        submitAnotherBtn.setAttribute('aria-label', t.submitAnother);
+    }
 }
 
 // ============================================
