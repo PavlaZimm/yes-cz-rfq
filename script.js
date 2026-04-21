@@ -12,7 +12,7 @@ const CONFIG = {
     MIN_DATE_OFFSET: 7,
     MAX_DATE_OFFSET: 90,
     SUCCESS_URL: 'success.html',
-    DEBUG: true,
+    DEBUG: false,
     MAX_PRODUCTS: 20,
     FALLBACK_BRANDS: [
         'Aiko',
