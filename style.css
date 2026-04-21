@@ -132,6 +132,46 @@ body {
 }
 
 /* ============================================
+   Language Switcher
+   ============================================ */
+.lang-switcher {
+    display: inline-flex;
+    gap: 2px;
+    border: 1px solid var(--border-color, #ddd);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--white, #fff);
+}
+
+.lang-btn {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border: none;
+    background: transparent;
+    color: var(--navy-dark, #333);
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s;
+    letter-spacing: 0.5px;
+}
+
+.lang-btn:hover {
+    background: var(--bg-secondary, #f5f5f5);
+}
+
+.lang-btn.active {
+    background: var(--orange-primary, #ff6b00);
+    color: var(--white, #fff);
+    cursor: default;
+}
+
+.lang-btn:focus-visible {
+    outline: 2px solid var(--orange-primary, #ff6b00);
+    outline-offset: 2px;
+}
+
+/* ============================================
    Main Content
    ============================================ */
 .main {

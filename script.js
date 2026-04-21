@@ -91,9 +91,6 @@ const CS = {
     closeAlert: 'Zavřít',
     submitAriaLabel: 'Odeslat poptávku',
     loadingBrands: 'Načítám značky...',
-    labelMistoDodani: 'Místo dodání',
-    mistoDodaniPlaceholder: 'Např. Praha, Brno, adresa skladu...',
-    mistoDodaniHint: 'Místo, kam má být zásilka doručena',
     submitAnother: 'Poptat další značku',
     successTitle: 'Poptávka odeslána!',
     successBrand: 'Poptávka pro značku "{brand}" byla úspěšně odeslána. Ozveme se vám s nabídkou.',
@@ -175,9 +172,6 @@ const EN = {
     closeAlert: 'Close',
     submitAriaLabel: 'Submit request',
     loadingBrands: 'Loading brands...',
-    labelMistoDodani: 'Delivery location',
-    mistoDodaniPlaceholder: 'E.g. Prague, Brno, warehouse address...',
-    mistoDodaniHint: 'Location where the shipment should be delivered',
     submitAnother: 'Request another brand',
     successTitle: 'Request sent!',
     successBrand: 'Request for brand "{brand}" was successfully sent. We will get back to you with an offer.',
@@ -1382,14 +1376,6 @@ function applyTranslations() {
     if (phoneLabel) phoneLabel.innerHTML = t.labelPhone + ' <span class="required">' + t.required + '</span>';
     inputs.telefon.placeholder = t.phonePlaceholder;
 
-    // Místo dodání (samostatné pole)
-    var mistoLabel = document.querySelector('label[for="misto_dodani"]');
-    if (mistoLabel) mistoLabel.innerHTML = t.labelMistoDodani + ' <span class="optional">' + t.optional + '</span>';
-    var mistoInput = document.getElementById('misto_dodani');
-    if (mistoInput) mistoInput.placeholder = t.mistoDodaniPlaceholder;
-    var mistoHint = document.getElementById('misto-dodani-hint');
-    if (mistoHint) mistoHint.textContent = t.mistoDodaniHint;
-
     // Note
     var noteLabel = document.querySelector('label[for="poznamka"]');
     if (noteLabel) noteLabel.innerHTML = t.labelNote + ' <span class="optional">' + t.optional + '</span>';
@@ -1432,10 +1418,30 @@ function applyTranslations() {
 // INICIALIZACE
 // ============================================
 
+function setupLangSwitcher() {
+    const buttons = document.querySelectorAll('.lang-btn');
+    buttons.forEach(function (btn) {
+        const lang = btn.getAttribute('data-lang');
+        if ((isCzech && lang === 'cs') || (!isCzech && lang === 'en')) {
+            btn.classList.add('active');
+            btn.setAttribute('aria-pressed', 'true');
+        } else {
+            btn.setAttribute('aria-pressed', 'false');
+        }
+        btn.addEventListener('click', function () {
+            if (btn.classList.contains('active')) return;
+            const url = new URL(window.location.href);
+            url.searchParams.set('lang', lang);
+            window.location.href = url.toString();
+        });
+    });
+}
+
 async function init() {
     log('Initializing RFQ form...');
 
     applyTranslations();
+    setupLangSwitcher();
     setupDatePicker();
     updatePoznamkaCounter();
     restoreContactInfo();
