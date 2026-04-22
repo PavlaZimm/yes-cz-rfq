@@ -7,6 +7,7 @@
 // ============================================
 const NABIDKA_CONFIG = {
     WEBHOOK_URL: 'https://hook.eu1.make.com/fv734p7p8aar5yfenpybsf9dl62kj5j9',
+    DECLINE_WEBHOOK_URL: 'PASTE_NEW_WEBHOOK_URL_HERE',
     TIMEOUT: 10000,
     DEBUG: false
 };
@@ -569,7 +570,7 @@ async function declineOffer() {
         var controller = new AbortController();
         var timeoutId = setTimeout(function () { controller.abort(); }, NABIDKA_CONFIG.TIMEOUT);
 
-        var response = await fetch(NABIDKA_CONFIG.WEBHOOK_URL, {
+        var response = await fetch(NABIDKA_CONFIG.DECLINE_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
