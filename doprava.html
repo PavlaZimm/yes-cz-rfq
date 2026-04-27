@@ -65,23 +65,23 @@
                     <fieldset class="form-section">
                         <legend class="form-section-title">Objednávka dopravy</legend>
 
-                        <!-- Adresa vyzvednutí -->
+                        <!-- Adresa skladu / místo vyzvednutí -->
                         <div class="form-group">
-                            <label for="adresa_vyzvednuti" class="form-label">
-                                Adresa vyzvednutí <span class="required">*</span>
+                            <label for="adresa_skladu" class="form-label">
+                                Adresa skladu / místo vyzvednutí <span class="required">*</span>
                             </label>
-                            <input
-                                type="text"
-                                id="adresa_vyzvednuti"
-                                name="adresa_vyzvednuti"
+                            <select
+                                id="adresa_skladu"
+                                name="adresa_skladu"
                                 class="form-input"
                                 required
-                                maxlength="300"
-                                placeholder="Adresa skladu dodavatele"
                                 aria-required="true"
                                 aria-invalid="false"
                                 aria-describedby="adresa-vyzvednuti-error"
                             >
+                                <option value="Kozomín 501, 277 45 Kozomín">Kozomín 501, 277 45 Kozomín</option>
+                                <option value="Brněnská 2297, 686 03 Staré Město">Brněnská 2297, 686 03 Staré Město</option>
+                            </select>
                             <span id="adresa-vyzvednuti-error" class="form-error" role="alert"></span>
                         </div>
 

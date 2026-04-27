@@ -25,7 +25,7 @@ const btnText = submitBtn.querySelector('.btn-text');
 const btnLoader = submitBtn.querySelector('.btn-loader');
 
 // Form inputs
-const adresaVyzvednutiInput = document.getElementById('adresa_vyzvednuti');
+const adresaVyzvednutiInput = document.getElementById('adresa_skladu');
 const adresaDodaniInput = document.getElementById('adresa_dodani');
 const zpusobBaleniInput = document.getElementById('zpusob_baleni');
 const pocetPaletInput = document.getElementById('pocet_palet');
@@ -98,7 +98,9 @@ function prefillForm() {
 
     // Předvyplnění polí z URL parametrů
     if (params.adresa_skladu) {
-        adresaVyzvednutiInput.value = decodeURIComponent(params.adresa_skladu);
+        var decoded = decodeURIComponent(params.adresa_skladu);
+        var match = Array.from(adresaVyzvednutiInput.options).find(function(o) { return o.value === decoded; });
+        adresaVyzvednutiInput.value = match ? decoded : adresaVyzvednutiInput.options[0].value;
     }
     if (params.adresa_dodani) {
         adresaDodaniInput.value = decodeURIComponent(params.adresa_dodani);
@@ -219,7 +221,7 @@ async function submitTransport() {
 
     var data = {
         record_id: params.record_id,
-        adresa_vyzvednuti: adresaVyzvednutiInput.value.trim(),
+        adresa_skladu: adresaVyzvednutiInput.value,
         adresa_dodani: adresaDodaniInput.value.trim(),
         zpusob_baleni: zpusobBaleniInput.value.trim(),
         pocet_palet: parseInt(pocetPaletInput.value, 10),
