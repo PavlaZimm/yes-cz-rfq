@@ -11,6 +11,10 @@
     {
       "source": "/nabidka",
       "destination": "/nabidka.html"
+    },
+    {
+      "source": "/doprava",
+      "destination": "/doprava.html"
     }
   ],
   "headers": [

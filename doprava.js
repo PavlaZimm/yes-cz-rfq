@@ -59,6 +59,98 @@ const params = {
 };
 
 // ============================================
+// JAZYKOVÁ DETEKCE
+// ============================================
+var langParam = new URLSearchParams(window.location.search).get('lang');
+var isCzech = langParam
+    ? (langParam === 'cs' || langParam === 'sk')
+    : ((navigator.language || '').startsWith('cs') || (navigator.language || '').startsWith('sk'));
+
+var CS_DOPRAVA = {
+    invalidTitle: 'Neplatný odkaz',
+    invalidText: 'Neplatný odkaz. Zkontrolujte email s pozvánkou.',
+    sectionDetail: 'Detail zásilky',
+    labelDodavatel: 'Dodavatel',
+    sectionForm: 'Objednávka dopravy',
+    labelPickup: 'Adresa vyzvednutí',
+    pickupPlaceholder: 'Adresa skladu dodavatele',
+    labelDelivery: 'Adresa dodání',
+    deliveryPlaceholder: 'Adresa místa dodání',
+    labelBaleni: 'Způsob balení',
+    baleniPlaceholder: 'Např. na paletě, v kartonu...',
+    labelPalet: 'Počet palet',
+    labelRozmery: 'Rozměry zásilky (cm)',
+    rozmeryPlaceholder: 'délka × šířka × výška (cm), např. 120 × 80 × 150',
+    rozmeryHint: 'délka × šířka × výška, např. 120 × 80 × 150',
+    labelVaha: 'Váha celkem (kg)',
+    labelTermin: 'Požadovaný termín přepravy',
+    labelNote: 'Poznámka',
+    noteHint: 'Maximálně 1000 znaků',
+    submitBtn: 'Odeslat objednávku dopravy',
+    submitting: 'Odesílám...',
+    successTitle: 'Děkujeme!',
+    successText: 'Objednávka dopravy byla úspěšně odeslána.',
+    optional: '(volitelně)',
+    required: '*',
+    errorTitle: 'Chyba',
+    submitAriaLabel: 'Odeslat objednávku dopravy',
+    // Validation
+    errPickup: 'Vyplňte adresu vyzvednutí.',
+    errDelivery: 'Vyplňte adresu dodání.',
+    errBaleni: 'Vyplňte způsob balení.',
+    errPalet: 'Zadejte počet palet (min. 1).',
+    errRozmery: 'Vyplňte rozměry zásilky.',
+    errVaha: 'Zadejte váhu (větší než 0).',
+    errTermin: 'Zvolte požadovaný termín přepravy.',
+    errGeneral: 'Chyba při odesílání. Zkuste znovu nebo kontaktujte support.',
+    errTimeout: 'Požadavek trval příliš dlouho. Zkuste to znovu.',
+    errNetwork: 'Nepodařilo se odeslat objednávku. Zkontrolujte připojení.'
+};
+
+var EN_DOPRAVA = {
+    invalidTitle: 'Invalid link',
+    invalidText: 'Invalid link. Please check the invitation email.',
+    sectionDetail: 'Shipment details',
+    labelDodavatel: 'Supplier',
+    sectionForm: 'Transport order',
+    labelPickup: 'Pickup address',
+    pickupPlaceholder: 'Supplier warehouse address',
+    labelDelivery: 'Delivery address',
+    deliveryPlaceholder: 'Delivery location address',
+    labelBaleni: 'Packaging method',
+    baleniPlaceholder: 'E.g. on pallet, in carton...',
+    labelPalet: 'Number of pallets',
+    labelRozmery: 'Shipment dimensions (cm)',
+    rozmeryPlaceholder: 'length × width × height (cm), e.g. 120 × 80 × 150',
+    rozmeryHint: 'length × width × height, e.g. 120 × 80 × 150',
+    labelVaha: 'Total weight (kg)',
+    labelTermin: 'Required transport date',
+    labelNote: 'Note',
+    noteHint: 'Maximum 1000 characters',
+    submitBtn: 'Submit transport order',
+    submitting: 'Submitting...',
+    successTitle: 'Thank you!',
+    successText: 'Transport order was successfully submitted.',
+    optional: '(optional)',
+    required: '*',
+    errorTitle: 'Error',
+    submitAriaLabel: 'Submit transport order',
+    // Validation
+    errPickup: 'Fill in the pickup address.',
+    errDelivery: 'Fill in the delivery address.',
+    errBaleni: 'Fill in the packaging method.',
+    errPalet: 'Enter the number of pallets (min. 1).',
+    errRozmery: 'Fill in the shipment dimensions.',
+    errVaha: 'Enter the weight (greater than 0).',
+    errTermin: 'Select the required transport date.',
+    errGeneral: 'Error submitting. Please try again or contact support.',
+    errTimeout: 'Request took too long. Please try again.',
+    errNetwork: 'Failed to submit the order. Check your connection.'
+};
+
+var td = isCzech ? CS_DOPRAVA : EN_DOPRAVA;
+
+// ============================================
 // UTILITY FUNKCE
 // ============================================
 
@@ -87,6 +179,17 @@ function clearFieldError(errorEl) {
 // PŘEDVYPLNĚNÍ FORMULÁŘE
 // ============================================
 
+function setReadonly(input, value) {
+    input.value = value;
+    input.readOnly = true;
+    input.classList.add('input-readonly');
+    // For number inputs, readOnly is not fully supported — prevent changes
+    if (input.type === 'number') {
+        input.addEventListener('keydown', function(e) { e.preventDefault(); });
+        input.addEventListener('wheel', function(e) { e.preventDefault(); });
+    }
+}
+
 function prefillForm() {
     // Dodavatel
     var dodavatelEl = document.getElementById('val-dodavatel');
@@ -96,26 +199,26 @@ function prefillForm() {
         document.getElementById('detail-dodavatel').style.display = 'none';
     }
 
-    // Předvyplnění polí z URL parametrů
+    // Předvyplnění polí z URL parametrů — prefilled = readonly
     if (params.adresa_skladu) {
         var decoded = decodeURIComponent(params.adresa_skladu);
         var match = Array.from(adresaVyzvednutiInput.options).find(function(o) { return o.value === decoded; });
         adresaVyzvednutiInput.value = match ? decoded : adresaVyzvednutiInput.options[0].value;
     }
     if (params.adresa_dodani) {
-        adresaDodaniInput.value = decodeURIComponent(params.adresa_dodani);
+        setReadonly(adresaDodaniInput, decodeURIComponent(params.adresa_dodani));
     }
     if (params.zpusob_baleni) {
-        zpusobBaleniInput.value = decodeURIComponent(params.zpusob_baleni);
+        setReadonly(zpusobBaleniInput, decodeURIComponent(params.zpusob_baleni));
     }
     if (params.pocet_palet) {
-        pocetPaletInput.value = decodeURIComponent(params.pocet_palet);
+        setReadonly(pocetPaletInput, decodeURIComponent(params.pocet_palet));
     }
     if (params.rozmery_palety) {
-        rozmerPaletyInput.value = decodeURIComponent(params.rozmery_palety);
+        setReadonly(rozmerPaletyInput, decodeURIComponent(params.rozmery_palety));
     }
     if (params.vaha_kg) {
-        vahaKgInput.value = decodeURIComponent(params.vaha_kg);
+        setReadonly(vahaKgInput, decodeURIComponent(params.vaha_kg));
     }
 
     // Nastavit minimální datum přepravy na dnes
@@ -139,39 +242,39 @@ function validateForm() {
     clearFieldError(terminPrepravyError);
 
     if (!adresaVyzvednutiInput.value.trim()) {
-        showFieldError(adresaVyzvednutiError, 'Vyplňte adresu vyzvednutí.');
+        showFieldError(adresaVyzvednutiError, td.errPickup);
         valid = false;
     }
 
     if (!adresaDodaniInput.value.trim()) {
-        showFieldError(adresaDodaniError, 'Vyplňte adresu dodání.');
+        showFieldError(adresaDodaniError, td.errDelivery);
         valid = false;
     }
 
     if (!zpusobBaleniInput.value.trim()) {
-        showFieldError(zpusobBaleniError, 'Vyplňte způsob balení.');
+        showFieldError(zpusobBaleniError, td.errBaleni);
         valid = false;
     }
 
     var pocet = parseInt(pocetPaletInput.value, 10);
     if (!pocetPaletInput.value || isNaN(pocet) || pocet < 1) {
-        showFieldError(pocetPaletError, 'Zadejte počet palet (min. 1).');
+        showFieldError(pocetPaletError, td.errPalet);
         valid = false;
     }
 
     if (!rozmerPaletyInput.value.trim()) {
-        showFieldError(rozmerPaletyError, 'Vyplňte rozměry palety.');
+        showFieldError(rozmerPaletyError, td.errRozmery);
         valid = false;
     }
 
     var vaha = parseFloat(vahaKgInput.value);
     if (!vahaKgInput.value || isNaN(vaha) || vaha <= 0) {
-        showFieldError(vahaKgError, 'Zadejte váhu (větší než 0).');
+        showFieldError(vahaKgError, td.errVaha);
         valid = false;
     }
 
     if (!terminPrepravyInput.value) {
-        showFieldError(terminPrepravyError, 'Zvolte požadovaný termín přepravy.');
+        showFieldError(terminPrepravyError, td.errTermin);
         valid = false;
     }
 
@@ -255,18 +358,20 @@ async function submitTransport() {
 
         log('Objednávka dopravy odeslána úspěšně');
         transportCard.style.display = 'none';
+        document.querySelector('#successCard .success-title').textContent = td.successTitle;
+        document.querySelector('#successCard .success-perex').textContent = td.successText;
         successCard.style.display = 'block';
         successCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
     } catch (err) {
         log('Error:', err);
 
-        var errorMsg = 'Chyba při odesílání. Zkuste znovu nebo kontaktujte support.';
+        var errorMsg = td.errGeneral;
 
         if (err.name === 'AbortError') {
-            errorMsg = 'Požadavek trval příliš dlouho. Zkuste to znovu.';
+            errorMsg = td.errTimeout;
         } else if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
-            errorMsg = 'Nepodařilo se odeslat objednávku. Zkontrolujte připojení.';
+            errorMsg = td.errNetwork;
         }
 
         showError(errorMsg);
@@ -303,11 +408,110 @@ poznamkaInput.addEventListener('input', function () {
 });
 
 // ============================================
+// PŘEKLAD UI
+// ============================================
+
+function applyDopravaTranslations() {
+    if (isCzech) return;
+
+    document.documentElement.lang = 'en';
+    document.title = td.submitBtn + ' - Yes.cz';
+
+    // Invalid link card
+    var invalidTitle = invalidLinkCard.querySelector('.form-title');
+    if (invalidTitle) invalidTitle.textContent = td.invalidTitle;
+    var invalidText = invalidLinkCard.querySelector('.form-subtitle');
+    if (invalidText) invalidText.textContent = td.invalidText;
+
+    // Section legends
+    var legends = document.querySelectorAll('.form-section-title');
+    if (legends[0]) legends[0].textContent = td.sectionDetail;
+    if (legends[1]) legends[1].textContent = td.sectionForm;
+
+    // Detail labels
+    var dodavLabel = document.querySelector('#detail-dodavatel .detail-label');
+    if (dodavLabel) dodavLabel.textContent = td.labelDodavatel;
+
+    // Form fields
+    var pickupLabel = document.querySelector('label[for="adresa_vyzvednuti"]');
+    if (pickupLabel) pickupLabel.innerHTML = td.labelPickup + ' <span class="required">' + td.required + '</span>';
+    adresaVyzvednutiInput.placeholder = td.pickupPlaceholder;
+
+    var deliveryLabel = document.querySelector('label[for="adresa_dodani"]');
+    if (deliveryLabel) deliveryLabel.innerHTML = td.labelDelivery + ' <span class="required">' + td.required + '</span>';
+    adresaDodaniInput.placeholder = td.deliveryPlaceholder;
+
+    var baleniLabel = document.querySelector('label[for="zpusob_baleni"]');
+    if (baleniLabel) baleniLabel.innerHTML = td.labelBaleni + ' <span class="required">' + td.required + '</span>';
+    zpusobBaleniInput.placeholder = td.baleniPlaceholder;
+
+    var paletLabel = document.querySelector('label[for="pocet_palet"]');
+    if (paletLabel) paletLabel.innerHTML = td.labelPalet + ' <span class="required">' + td.required + '</span>';
+
+    var rozmeryLabel = document.querySelector('label[for="rozmery_palety"]');
+    if (rozmeryLabel) rozmeryLabel.innerHTML = td.labelRozmery + ' <span class="required">' + td.required + '</span>';
+    rozmerPaletyInput.placeholder = td.rozmeryPlaceholder;
+    var rozmeryHint = document.getElementById('rozmery-palety-hint');
+    if (rozmeryHint) rozmeryHint.textContent = td.rozmeryHint;
+
+    var vahaLabel = document.querySelector('label[for="vaha_kg"]');
+    if (vahaLabel) vahaLabel.innerHTML = td.labelVaha + ' <span class="required">' + td.required + '</span>';
+
+    var terminLabel = document.querySelector('label[for="termin_prepravy"]');
+    if (terminLabel) terminLabel.innerHTML = td.labelTermin + ' <span class="required">' + td.required + '</span>';
+
+    // Note
+    var noteLabel = document.querySelector('label[for="poznamka"]');
+    if (noteLabel) noteLabel.innerHTML = td.labelNote + ' <span class="optional">' + td.optional + '</span>';
+    var noteHint = document.getElementById('poznamka-hint');
+    if (noteHint) noteHint.textContent = td.noteHint;
+
+    // Error alert
+    var errorStrong = errorAlert.querySelector('strong');
+    if (errorStrong) errorStrong.textContent = td.errorTitle;
+
+    // Success card (initial title text)
+    var successTitleEl = document.querySelector('#successCard .success-title');
+    if (successTitleEl) successTitleEl.textContent = td.successTitle;
+    var successPerexEl = document.querySelector('#successCard .success-perex');
+    if (successPerexEl) successPerexEl.textContent = td.successText;
+
+    // Submit button
+    var btnTextEl = submitBtn.querySelector('.btn-text');
+    if (btnTextEl) btnTextEl.textContent = td.submitBtn;
+    submitBtn.setAttribute('aria-label', td.submitAriaLabel);
+    var loaderSpan = submitBtn.querySelector('.btn-loader');
+    if (loaderSpan) loaderSpan.innerHTML = '<span class="spinner"></span> ' + td.submitting;
+}
+
+// ============================================
 // INICIALIZACE
 // ============================================
 
+function setupLangSwitcher() {
+    var buttons = document.querySelectorAll('.lang-btn');
+    buttons.forEach(function (btn) {
+        var lang = btn.getAttribute('data-lang');
+        if ((isCzech && lang === 'cs') || (!isCzech && lang === 'en')) {
+            btn.classList.add('active');
+            btn.setAttribute('aria-pressed', 'true');
+        } else {
+            btn.setAttribute('aria-pressed', 'false');
+        }
+        btn.addEventListener('click', function () {
+            if (btn.classList.contains('active')) return;
+            var url = new URL(window.location.href);
+            url.searchParams.set('lang', lang);
+            window.location.href = url.toString();
+        });
+    });
+}
+
 function init() {
     log('Initializing doprava page...', params);
+
+    applyDopravaTranslations();
+    setupLangSwitcher();
 
     // 1. Kontrola record_id
     if (!params.record_id) {

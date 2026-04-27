@@ -12,7 +12,7 @@ const CONFIG = {
     MIN_DATE_OFFSET: 7,
     MAX_DATE_OFFSET: 90,
     SUCCESS_URL: 'success.html',
-    DEBUG: true,
+    DEBUG: false,
     MAX_PRODUCTS: 20,
     FALLBACK_BRANDS: [
         'Aiko',
@@ -35,6 +35,178 @@ const CONFIG = {
         'Victron'
     ]
 };
+
+// ============================================
+// JAZYKOVÁ DETEKCE
+// ============================================
+const langParam = new URLSearchParams(window.location.search).get('lang');
+const isCzech = langParam
+    ? (langParam === 'cs' || langParam === 'sk')
+    : ((navigator.language || '').startsWith('cs') || (navigator.language || '').startsWith('sk'));
+
+const CS = {
+    pageTitle: 'Poptat cenu',
+    pageSubtitle: 'Vyberte značku, specifikujte produkty a my vám zašleme nejlepší nabídku od našich dodavatelů',
+    sectionProduct: 'Produkt',
+    labelBrand: 'Značka',
+    brandHint: 'Volitelné – vyberte značku ze seznamu nebo začněte psát pro vyhledání',
+    brandPlaceholder: 'Začněte psát název značky...',
+    brandNotFound: 'Značka nenalezena',
+    brandNone: 'Žádné značky k dispozici',
+    brandLoading: 'Načítám značky...',
+    labelProducts: 'Produkty',
+    productSpecPlaceholder: 'Specifikace produktu (např. Panel XYZ 400W)',
+    productQtyPlaceholder: 'Ks',
+    addProduct: '+ Přidat další produkt stejné značky',
+    sectionDelivery: 'Dodání',
+    labelDeliveryDate: 'Požadovaný termín dodání DDP',
+    deliveryHint: 'Nejdříve za týden od dneška',
+    labelAuctionTime: 'Kolik času mají obchodníci na zpracování nabídky včetně ověření dopravy na místo zakázky?',
+    auction3: 'Tři pracovní dny',
+    auction5: 'Pět pracovních dnů',
+    auction7: 'Sedm pracovních dnů',
+    sectionContact: 'Kontaktní údaje',
+    labelCompany: 'Název společnosti',
+    companyPlaceholder: 'Název vaší společnosti',
+    labelIco: 'IČO',
+    icoPlaceholder: '12345678',
+    labelDeliveryAddress: 'Adresa místa dodání',
+    deliveryAddressPlaceholder: 'Ulice, město, PSČ',
+    deliveryAddressHint: 'Vyplňte pouze pokud je adresa dodání jiná než adresa společnosti',
+    labelName: 'Jméno a příjmení',
+    namePlaceholder: 'Jan Novák',
+    labelEmail: 'Email',
+    emailPlaceholder: 'jan.novak@email.cz',
+    labelPhone: 'Telefon',
+    phonePlaceholder: '+420 123 456 789',
+    labelNote: 'Poznámka',
+    noteHint: 'Maximálně 500 znaků',
+    submitBtn: 'Odeslat poptávku',
+    submitting: 'Odesílám...',
+    formFooter: 'Odesláním poptávky souhlasíte se zpracováním osobních údajů.',
+    optional: '(volitelné)',
+    required: '*',
+    notePlaceholder: 'Doplňující informace k poptávce...',
+    errorTitle: 'Chyba',
+    closeAlert: 'Zavřít',
+    submitAriaLabel: 'Odeslat poptávku',
+    loadingBrands: 'Načítám značky...',
+    submitAnother: 'Poptat další značku',
+    successTitle: 'Poptávka odeslána!',
+    successBrand: 'Poptávka pro značku "{brand}" byla úspěšně odeslána. Ozveme se vám s nabídkou.',
+    successBrandN: 'Poptávka pro značku "{brand}" byla odeslána ({n}. poptávka v této relaci).',
+    successNoBrand: 'Poptávka byla úspěšně odeslána. Ozveme se vám s nabídkou.',
+    successNoBrandN: 'Poptávka byla odeslána ({n}. poptávka v této relaci).',
+    // Validation
+    errBrandInvalid: 'Vyberte platnou značku ze seznamu',
+    errProductEmpty: 'Zadejte alespoň jeden produkt',
+    errProductSpec: 'Vyplňte specifikaci u všech produktů',
+    errProductQty: 'Zadejte počet kusů u všech produktů',
+    errAuction: 'Vyberte termín ukončení aukce',
+    errCompanyMin: 'Název společnosti musí obsahovat alespoň 2 znaky',
+    errCompanyMax: 'Název společnosti může obsahovat maximálně 200 znaků',
+    errIcoRequired: 'IČO je povinné',
+    errIcoFormat: 'IČO musí obsahovat přesně 8 číslic',
+    errNameMin: 'Jméno musí obsahovat alespoň 2 znaky',
+    errNameMax: 'Jméno může obsahovat maximálně 100 znaků',
+    errNameChars: 'Jméno může obsahovat pouze písmena a mezery',
+    errRequired: 'Toto pole je povinné',
+    errEmailInvalid: 'Zadejte platnou emailovou adresu',
+    errPhoneInvalid: 'Zadejte platné telefonní číslo ve formátu +420 123 456 789',
+    errPhonePrefix: 'Telefonní číslo musí začínat +420',
+    errDateMin: 'Vyberte datum nejdříve za týden od dneška',
+    errDateMax: 'Datum může být maximálně {n} dní od dneška',
+    errNoteMax: 'Poznámka může obsahovat max 500 znaků',
+    errMaxProducts: 'Maximální počet produktů je {n}',
+    errConfig: 'Chyba konfigurace: Make.com webhook URL není nastaven. Kontaktujte administrátora.',
+    errTimeout: 'Požadavek trval příliš dlouho. Zkuste to znovu.',
+    errNetwork: 'Nepodařilo se odeslat formulář. Zkontrolujte připojení.',
+    errServer: 'Došlo k chybě na serveru. Kontaktujte nás na +420 608 887 277',
+    errGeneral: 'Nastala chyba při odesílání. Zkuste to prosím znovu.'
+};
+
+const EN = {
+    pageTitle: 'Request a Quote',
+    pageSubtitle: 'Select a brand, specify products and we will send you the best offer from our suppliers',
+    sectionProduct: 'Product',
+    labelBrand: 'Brand',
+    brandHint: 'Optional – select a brand from the list or start typing to search',
+    brandPlaceholder: 'Start typing a brand name...',
+    brandNotFound: 'Brand not found',
+    brandNone: 'No brands available',
+    brandLoading: 'Loading brands...',
+    labelProducts: 'Products',
+    productSpecPlaceholder: 'Product specification (e.g. Panel XYZ 400W)',
+    productQtyPlaceholder: 'Qty',
+    addProduct: '+ Add another product of the same brand',
+    sectionDelivery: 'Delivery',
+    labelDeliveryDate: 'Required DDP delivery date',
+    deliveryHint: 'At least one week from today',
+    labelAuctionTime: 'How much time do suppliers have to prepare the offer including delivery verification?',
+    auction3: 'Three business days',
+    auction5: 'Five business days',
+    auction7: 'Seven business days',
+    sectionContact: 'Contact details',
+    labelCompany: 'Company name',
+    companyPlaceholder: 'Your company name',
+    labelIco: 'Company ID',
+    icoPlaceholder: '12345678',
+    labelDeliveryAddress: 'Delivery address',
+    deliveryAddressPlaceholder: 'Street, city, ZIP',
+    deliveryAddressHint: 'Fill in only if the delivery address differs from the company address',
+    labelName: 'Full name',
+    namePlaceholder: 'John Doe',
+    labelEmail: 'Email',
+    emailPlaceholder: 'john.doe@email.com',
+    labelPhone: 'Phone',
+    phonePlaceholder: '+420 123 456 789',
+    labelNote: 'Note',
+    noteHint: 'Maximum 500 characters',
+    submitBtn: 'Submit request',
+    submitting: 'Submitting...',
+    formFooter: 'By submitting a request you agree to the processing of personal data.',
+    optional: '(optional)',
+    required: '*',
+    notePlaceholder: 'Additional information about the request...',
+    errorTitle: 'Error',
+    closeAlert: 'Close',
+    submitAriaLabel: 'Submit request',
+    loadingBrands: 'Loading brands...',
+    submitAnother: 'Request another brand',
+    successTitle: 'Request sent!',
+    successBrand: 'Request for brand "{brand}" was successfully sent. We will get back to you with an offer.',
+    successBrandN: 'Request for brand "{brand}" was sent ({n}th request in this session).',
+    successNoBrand: 'Request was successfully sent. We will get back to you with an offer.',
+    successNoBrandN: 'Request was sent ({n}th request in this session).',
+    // Validation
+    errBrandInvalid: 'Select a valid brand from the list',
+    errProductEmpty: 'Enter at least one product',
+    errProductSpec: 'Fill in the specification for all products',
+    errProductQty: 'Enter the quantity for all products',
+    errAuction: 'Select the auction deadline',
+    errCompanyMin: 'Company name must contain at least 2 characters',
+    errCompanyMax: 'Company name can contain a maximum of 200 characters',
+    errIcoRequired: 'Company ID is required',
+    errIcoFormat: 'Company ID must contain exactly 8 digits',
+    errNameMin: 'Name must contain at least 2 characters',
+    errNameMax: 'Name can contain a maximum of 100 characters',
+    errNameChars: 'Name can only contain letters and spaces',
+    errRequired: 'This field is required',
+    errEmailInvalid: 'Enter a valid email address',
+    errPhoneInvalid: 'Enter a valid phone number in +420 123 456 789 format',
+    errPhonePrefix: 'Phone number must start with +420',
+    errDateMin: 'Select a date at least one week from today',
+    errDateMax: 'Date can be maximum {n} days from today',
+    errNoteMax: 'Note can contain a maximum of 500 characters',
+    errMaxProducts: 'Maximum number of products is {n}',
+    errConfig: 'Configuration error: Make.com webhook URL is not set. Contact the administrator.',
+    errTimeout: 'Request took too long. Please try again.',
+    errNetwork: 'Failed to submit the form. Check your connection.',
+    errServer: 'A server error occurred. Contact us at +420 608 887 277',
+    errGeneral: 'An error occurred while submitting. Please try again.'
+};
+
+const t = isCzech ? CS : EN;
 
 // ============================================
 // STAV APLIKACE
@@ -258,7 +430,7 @@ function renderDropdownList(filter) {
     if (filtered.length === 0) {
         const empty = document.createElement('li');
         empty.className = 'dropdown-empty';
-        empty.textContent = query ? 'Značka nenalezena' : 'Žádné značky k dispozici';
+        empty.textContent = query ? t.brandNotFound : t.brandNone;
         znackaList.appendChild(empty);
         return;
     }
@@ -388,7 +560,7 @@ document.addEventListener('click', (e) => {
 function addProduktRow() {
     const rows = produktyList.querySelectorAll('.produkt-row');
     if (rows.length >= CONFIG.MAX_PRODUCTS) {
-        showErrorAlert('Maximální počet produktů je ' + CONFIG.MAX_PRODUCTS);
+        showErrorAlert(t.errMaxProducts.replace('{n}', CONFIG.MAX_PRODUCTS));
         return;
     }
 
@@ -399,17 +571,17 @@ function addProduktRow() {
     newRow.innerHTML =
         '<div class="produkt-fields">' +
             '<input type="text" class="form-input produkt-spec" ' +
-                'placeholder="Specifikace produktu (např. Panel XYZ 400W)" ' +
+                'placeholder="' + t.productSpecPlaceholder + '" ' +
                 'required maxlength="500" ' +
-                'aria-label="Specifikace produktu ' + (produktCounter + 1) + '">' +
+                'aria-label="' + (isCzech ? 'Specifikace produktu ' : 'Product specification ') + (produktCounter + 1) + '">' +
             '<div class="input-wrapper produkt-qty-wrapper">' +
                 '<input type="number" class="form-input produkt-qty" ' +
-                    'placeholder="Ks" required min="1" step="1" ' +
-                    'aria-label="Počet kusů produktu ' + (produktCounter + 1) + '">' +
-                '<span class="input-suffix">ks</span>' +
+                    'placeholder="' + t.productQtyPlaceholder + '" required min="1" step="1" ' +
+                    'aria-label="' + (isCzech ? 'Počet kusů produktu ' : 'Quantity for product ') + (produktCounter + 1) + '">' +
+                '<span class="input-suffix">' + (isCzech ? 'ks' : 'pcs') + '</span>' +
             '</div>' +
         '</div>' +
-        '<button type="button" class="produkt-remove-btn" aria-label="Odebrat produkt" title="Odebrat produkt">×</button>';
+        '<button type="button" class="produkt-remove-btn" aria-label="' + (isCzech ? 'Odebrat produkt' : 'Remove product') + '" title="' + (isCzech ? 'Odebrat produkt' : 'Remove product') + '">×</button>';
 
     produktyList.appendChild(newRow);
     updateRemoveButtons();
@@ -515,11 +687,11 @@ function calculateAukceDeadline() {
 function validateZnacka() {
     const value = inputs.znacka.value || inputs.znackaInput.value.trim();
     if (!value) {
-        return null; // značka je nepovinná
+        return null;
     }
     const isValid = brands.some(b => b.toLowerCase() === value.toLowerCase());
     if (!isValid) {
-        return 'Vyberte platnou značku ze seznamu';
+        return t.errBrandInvalid;
     }
     return null;
 }
@@ -536,19 +708,17 @@ function validateProdukty() {
         const spec = specInput.value.trim();
         const qty = qtyInput.value;
 
-        // Reset styling
         specInput.classList.remove('input-error');
         specInput.style.borderColor = '';
         qtyInput.classList.remove('input-error');
         qtyInput.style.borderColor = '';
 
         if (!spec && !qty) {
-            // Empty row - mark as error if it's the only row
             if (rows.length === 1) {
                 specInput.classList.add('input-error');
                 qtyInput.classList.add('input-error');
                 hasError = true;
-                errorMsg = 'Zadejte alespoň jeden produkt';
+                errorMsg = t.errProductEmpty;
             }
             return;
         }
@@ -556,14 +726,14 @@ function validateProdukty() {
         if (!spec) {
             specInput.classList.add('input-error');
             hasError = true;
-            errorMsg = 'Vyplňte specifikaci u všech produktů';
+            errorMsg = t.errProductSpec;
             return;
         }
 
         if (!qty || parseInt(qty, 10) < 1) {
             qtyInput.classList.add('input-error');
             hasError = true;
-            errorMsg = 'Zadejte počet kusů u všech produktů';
+            errorMsg = t.errProductQty;
             return;
         }
 
@@ -572,7 +742,7 @@ function validateProdukty() {
 
     if (!hasValidProduct && !hasError) {
         hasError = true;
-        errorMsg = 'Zadejte alespoň jeden produkt';
+        errorMsg = t.errProductEmpty;
     }
 
     return hasError ? errorMsg : null;
@@ -581,72 +751,72 @@ function validateProdukty() {
 function validateAukce() {
     const selected = getSelectedAukceDays();
     if (!selected) {
-        return 'Vyberte termín ukončení aukce';
+        return t.errAuction;
     }
     return null;
 }
 
 function validateSpolecnost(value) {
     if (!value || value.trim().length < 2) {
-        return 'Název společnosti musí obsahovat alespoň 2 znaky';
+        return t.errCompanyMin;
     }
     if (value.length > 200) {
-        return 'Název společnosti může obsahovat maximálně 200 znaků';
+        return t.errCompanyMax;
     }
     return null;
 }
 
 function validateIco(value) {
     if (!value) {
-        return 'IČO je povinné';
+        return t.errIcoRequired;
     }
     if (!/^[0-9]{8}$/.test(value.trim())) {
-        return 'IČO musí obsahovat přesně 8 číslic';
+        return t.errIcoFormat;
     }
     return null;
 }
 
 function validateJmeno(value) {
     if (!value || value.trim().length < 2) {
-        return 'Jméno musí obsahovat alespoň 2 znaky';
+        return t.errNameMin;
     }
     if (value.length > 100) {
-        return 'Jméno může obsahovat maximálně 100 znaků';
+        return t.errNameMax;
     }
     if (!/^[A-Za-zÁáČčĎďÉéĚěÍíŇňÓóŘřŠšŤťÚúŮůÝýŽž\s]+$/.test(value)) {
-        return 'Jméno může obsahovat pouze písmena a mezery';
+        return t.errNameChars;
     }
     return null;
 }
 
 function validateEmail(value) {
     if (!value) {
-        return 'Toto pole je povinné';
+        return t.errRequired;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(value)) {
-        return 'Zadejte platnou emailovou adresu';
+        return t.errEmailInvalid;
     }
     return null;
 }
 
 function validateTelefon(value) {
     if (!value) {
-        return 'Toto pole je povinné';
+        return t.errRequired;
     }
     const digits = value.replace(/\D/g, '');
     if (digits.length < 9 || digits.length > 13) {
-        return 'Zadejte platné telefonní číslo ve formátu +420 123 456 789';
+        return t.errPhoneInvalid;
     }
     if (!digits.startsWith('420') && digits.length === 9) {
-        return 'Telefonní číslo musí začínat +420';
+        return t.errPhonePrefix;
     }
     return null;
 }
 
 function validateTermin(value) {
     if (!value) {
-        return 'Toto pole je povinné';
+        return t.errRequired;
     }
     const selectedDate = new Date(value);
     const today = new Date();
@@ -659,17 +829,17 @@ function validateTermin(value) {
     maxDate.setDate(today.getDate() + CONFIG.MAX_DATE_OFFSET);
 
     if (selectedDate < minDate) {
-        return 'Vyberte datum nejdříve za týden od dneška';
+        return t.errDateMin;
     }
     if (selectedDate > maxDate) {
-        return 'Datum může být maximálně ' + CONFIG.MAX_DATE_OFFSET + ' dní od dneška';
+        return t.errDateMax.replace('{n}', CONFIG.MAX_DATE_OFFSET);
     }
     return null;
 }
 
 function validatePoznamka(value) {
     if (value && value.length > 500) {
-        return 'Poznámka může obsahovat max 500 znaků';
+        return t.errNoteMax;
     }
     return null;
 }
@@ -899,7 +1069,7 @@ async function submitForm() {
     }
 
     if (!CONFIG.WEBHOOK_URL || CONFIG.WEBHOOK_URL.includes('XXXXX')) {
-        showErrorAlert('Chyba konfigurace: Make.com webhook URL není nastaven. Kontaktujte administrátora.');
+        showErrorAlert(t.errConfig);
         return;
     }
 
@@ -935,14 +1105,14 @@ async function submitForm() {
     } catch (error) {
         log('Error:', error);
 
-        let errorMsg = 'Nastala chyba při odesílání. Zkuste to prosím znovu.';
+        let errorMsg = t.errGeneral;
 
         if (error.name === 'AbortError') {
-            errorMsg = 'Požadavek trval příliš dlouho. Zkuste to znovu.';
+            errorMsg = t.errTimeout;
         } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-            errorMsg = 'Nepodařilo se odeslat formulář. Zkontrolujte připojení.';
+            errorMsg = t.errNetwork;
         } else if (error.message.includes('Server error')) {
-            errorMsg = 'Došlo k chybě na serveru. Kontaktujte nás na +420 608 887 277';
+            errorMsg = t.errServer;
         }
 
         showErrorAlert(errorMsg);
@@ -960,15 +1130,15 @@ function showInlineSuccess(brandName) {
     const successMsg = document.getElementById('successMessage');
     if (brandName) {
         if (submissionCount > 1) {
-            successMsg.textContent = 'Poptávka pro značku "' + brandName + '" byla odeslána (' + submissionCount + '. poptávka v této relaci).';
+            successMsg.textContent = t.successBrandN.replace('{brand}', brandName).replace('{n}', submissionCount);
         } else {
-            successMsg.textContent = 'Poptávka pro značku "' + brandName + '" byla úspěšně odeslána. Ozveme se vám s nabídkou.';
+            successMsg.textContent = t.successBrand.replace('{brand}', brandName);
         }
     } else {
         if (submissionCount > 1) {
-            successMsg.textContent = 'Poptávka byla odeslána (' + submissionCount + '. poptávka v této relaci).';
+            successMsg.textContent = t.successNoBrandN.replace('{n}', submissionCount);
         } else {
-            successMsg.textContent = 'Poptávka byla úspěšně odeslána. Ozveme se vám s nabídkou.';
+            successMsg.textContent = t.successNoBrand;
         }
     }
 
@@ -996,17 +1166,17 @@ function resetForNewBrand() {
     initialRow.innerHTML =
         '<div class="produkt-fields">' +
             '<input type="text" class="form-input produkt-spec" ' +
-                'placeholder="Specifikace produktu (např. Panel XYZ 400W)" ' +
+                'placeholder="' + t.productSpecPlaceholder + '" ' +
                 'required maxlength="500" ' +
-                'aria-label="Specifikace produktu 1">' +
+                'aria-label="' + (isCzech ? 'Specifikace produktu 1' : 'Product specification 1') + '">' +
             '<div class="input-wrapper produkt-qty-wrapper">' +
                 '<input type="number" class="form-input produkt-qty" ' +
-                    'placeholder="Ks" required min="1" step="1" ' +
-                    'aria-label="Počet kusů produktu 1">' +
-                '<span class="input-suffix">ks</span>' +
+                    'placeholder="' + t.productQtyPlaceholder + '" required min="1" step="1" ' +
+                    'aria-label="' + (isCzech ? 'Počet kusů produktu 1' : 'Quantity for product 1') + '">' +
+                '<span class="input-suffix">' + (isCzech ? 'ks' : 'pcs') + '</span>' +
             '</div>' +
         '</div>' +
-        '<button type="button" class="produkt-remove-btn" aria-label="Odebrat produkt" title="Odebrat produkt" style="display: none;">×</button>';
+        '<button type="button" class="produkt-remove-btn" aria-label="' + (isCzech ? 'Odebrat produkt' : 'Remove product') + '" title="' + (isCzech ? 'Odebrat produkt' : 'Remove product') + '" style="display: none;">×</button>';
     produktyList.appendChild(initialRow);
 
     // Reset delivery fields
@@ -1125,12 +1295,153 @@ document.querySelectorAll('input[name="termin_aukce"]').forEach(radio => {
 });
 
 // ============================================
+// PŘEKLAD UI
+// ============================================
+
+function applyTranslations() {
+    if (isCzech) return; // HTML is already in Czech
+
+    document.documentElement.lang = 'en';
+    document.title = t.pageTitle + ' - Yes.cz RFQ';
+    document.querySelector('meta[name="description"]').setAttribute('content', t.pageTitle + ' - Yes.cz RFQ');
+
+    const title = document.querySelector('.form-title');
+    if (title) title.textContent = t.pageTitle;
+    const subtitle = document.querySelector('.form-subtitle');
+    if (subtitle) subtitle.textContent = t.pageSubtitle;
+
+    // Section legends
+    const legends = document.querySelectorAll('.form-section-title');
+    if (legends[0]) legends[0].textContent = t.sectionProduct;
+    if (legends[1]) legends[1].textContent = t.sectionDelivery;
+    if (legends[2]) legends[2].textContent = t.sectionContact;
+
+    // Brand
+    var brandLabel = document.querySelector('label[for="znacka-input"]');
+    if (brandLabel) brandLabel.textContent = t.labelBrand;
+    inputs.znackaInput.placeholder = t.brandPlaceholder;
+    var brandHint = document.getElementById('znacka-hint');
+    if (brandHint) brandHint.textContent = t.brandHint;
+
+    // Products
+    var prodLabel = document.querySelector('.produkty-list')?.closest('.form-group')?.querySelector('.form-label');
+    if (prodLabel) prodLabel.innerHTML = t.labelProducts + ' <span class="required">' + t.required + '</span>';
+    addProduktBtn.textContent = t.addProduct;
+    document.querySelectorAll('.produkt-spec').forEach(function(el) { el.placeholder = t.productSpecPlaceholder; });
+    document.querySelectorAll('.produkt-qty').forEach(function(el) { el.placeholder = t.productQtyPlaceholder; });
+    document.querySelectorAll('.produkt-qty-wrapper .input-suffix').forEach(function(el) { el.textContent = 'pcs'; });
+    document.querySelectorAll('.produkt-remove-btn').forEach(function(el) {
+        el.setAttribute('aria-label', 'Remove product');
+        el.setAttribute('title', 'Remove product');
+    });
+
+    // Delivery date
+    var terminLabel = document.querySelector('label[for="pozadovany_termin"]');
+    if (terminLabel) terminLabel.innerHTML = t.labelDeliveryDate + ' <span class="required">' + t.required + '</span>';
+    var terminHint = document.getElementById('termin-hint');
+    if (terminHint) terminHint.textContent = t.deliveryHint;
+
+    // Auction time
+    var aukceLabel = document.getElementById('aukceRadioGroup')?.closest('.form-group')?.querySelector('.form-label');
+    if (aukceLabel) aukceLabel.innerHTML = t.labelAuctionTime + ' <span class="required">' + t.required + '</span>';
+    var radioLabels = document.querySelectorAll('.radio-label');
+    if (radioLabels[0]) radioLabels[0].textContent = t.auction3;
+    if (radioLabels[1]) radioLabels[1].textContent = t.auction5;
+    if (radioLabels[2]) radioLabels[2].textContent = t.auction7;
+
+    // Contact fields
+    var companyLabel = document.querySelector('label[for="nazev_spolecnosti"]');
+    if (companyLabel) companyLabel.innerHTML = t.labelCompany + ' <span class="required">' + t.required + '</span>';
+    inputs.spolecnost.placeholder = t.companyPlaceholder;
+
+    var icoLabel = document.querySelector('label[for="ico"]');
+    if (icoLabel) icoLabel.innerHTML = t.labelIco + ' <span class="required">' + t.required + '</span>';
+    inputs.ico.placeholder = t.icoPlaceholder;
+
+    var addrLabel = document.querySelector('label[for="adresa_dodani"]');
+    if (addrLabel) addrLabel.innerHTML = t.labelDeliveryAddress + ' <span class="optional">' + t.optional + '</span>';
+    inputs.adresaDodani.placeholder = t.deliveryAddressPlaceholder;
+    var addrHint = document.getElementById('adresa-dodani-hint');
+    if (addrHint) addrHint.textContent = t.deliveryAddressHint;
+
+    var nameLabel = document.querySelector('label[for="zakaznik_jmeno"]');
+    if (nameLabel) nameLabel.innerHTML = t.labelName + ' <span class="required">' + t.required + '</span>';
+    inputs.jmeno.placeholder = t.namePlaceholder;
+
+    var emailLabel = document.querySelector('label[for="zakaznik_email"]');
+    if (emailLabel) emailLabel.innerHTML = t.labelEmail + ' <span class="required">' + t.required + '</span>';
+    inputs.email.placeholder = t.emailPlaceholder;
+
+    var phoneLabel = document.querySelector('label[for="zakaznik_telefon"]');
+    if (phoneLabel) phoneLabel.innerHTML = t.labelPhone + ' <span class="required">' + t.required + '</span>';
+    inputs.telefon.placeholder = t.phonePlaceholder;
+
+    // Note
+    var noteLabel = document.querySelector('label[for="poznamka"]');
+    if (noteLabel) noteLabel.innerHTML = t.labelNote + ' <span class="optional">' + t.optional + '</span>';
+    var noteHint = document.getElementById('poznamka-hint');
+    if (noteHint) noteHint.textContent = t.noteHint;
+    inputs.poznamka.placeholder = t.notePlaceholder;
+
+    // Loading brands
+    var loadingBrandsEl = document.getElementById('znacka-loading');
+    if (loadingBrandsEl) {
+        loadingBrandsEl.innerHTML = '<span class="spinner-sm"></span> ' + t.loadingBrands;
+    }
+
+    // Error alert
+    var errorStrong = errorAlert.querySelector('strong');
+    if (errorStrong) errorStrong.textContent = t.errorTitle;
+    var closeBtn = errorAlert.querySelector('.alert-close');
+    if (closeBtn) closeBtn.setAttribute('aria-label', t.closeAlert);
+
+    // Submit
+    if (btnText) btnText.textContent = t.submitBtn;
+    submitBtn.setAttribute('aria-label', t.submitAriaLabel);
+    var loaderText = submitBtn.querySelector('.btn-loader');
+    if (loaderText) loaderText.innerHTML = '<span class="spinner"></span> ' + t.submitting;
+    var footer = document.querySelector('.form-footer');
+    if (footer) footer.textContent = t.formFooter;
+
+    // Success alert
+    var successStrong = successAlert.querySelector('strong');
+    if (successStrong) successStrong.textContent = t.successTitle;
+    var successMsg = document.getElementById('successMessage');
+    if (successMsg) successMsg.textContent = t.successNoBrand;
+    if (submitAnotherBtn) {
+        submitAnotherBtn.textContent = t.submitAnother;
+        submitAnotherBtn.setAttribute('aria-label', t.submitAnother);
+    }
+}
+
+// ============================================
 // INICIALIZACE
 // ============================================
+
+function setupLangSwitcher() {
+    const buttons = document.querySelectorAll('.lang-btn');
+    buttons.forEach(function (btn) {
+        const lang = btn.getAttribute('data-lang');
+        if ((isCzech && lang === 'cs') || (!isCzech && lang === 'en')) {
+            btn.classList.add('active');
+            btn.setAttribute('aria-pressed', 'true');
+        } else {
+            btn.setAttribute('aria-pressed', 'false');
+        }
+        btn.addEventListener('click', function () {
+            if (btn.classList.contains('active')) return;
+            const url = new URL(window.location.href);
+            url.searchParams.set('lang', lang);
+            window.location.href = url.toString();
+        });
+    });
+}
 
 async function init() {
     log('Initializing RFQ form...');
 
+    applyTranslations();
+    setupLangSwitcher();
     setupDatePicker();
     updatePoznamkaCounter();
     restoreContactInfo();
