@@ -544,58 +544,18 @@ async function submitOffer() {
 // ODMÍTNUTÍ ÚČASTI
 // ============================================
 
-async function declineOffer() {
-    if (isSubmitting) return;
-
+function declineOffer() {
     if (isExpired(params.uzaverka)) {
         offerCard.style.display = 'none';
         expiredCard.style.display = 'block';
         return;
     }
 
-    isSubmitting = true;
-
-    var data = {
-        record_id: params.record_id,
-        dodavatel: params.dodavatel ? decodeURIComponent(params.dodavatel) : '',
-        stav: 'Odmítnuta',
-        datum_odeslani: new Date().toISOString()
-    };
-
-    log('Odmítám účast:', data);
-    setLoadingState(true);
-
-    try {
-        var controller = new AbortController();
-        var timeoutId = setTimeout(function () { controller.abort(); }, NABIDKA_CONFIG.TIMEOUT);
-
-        var response = await fetch(NABIDKA_CONFIG.WEBHOOK_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data),
-            signal: controller.signal
-        });
-
-        clearTimeout(timeoutId);
-
-        if (!response.ok) {
-            var errorText = await response.text();
-            throw new Error('Server error: ' + response.status + ' ' + errorText);
-        }
-
-        log('Odmítnutí odesláno');
-        offerCard.style.display = 'none';
-        document.getElementById('successTitle').textContent = tn.declineTitle;
-        document.getElementById('successPerex').textContent = tn.declineText;
-        successCard.style.display = 'block';
-        successCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    } catch (err) {
-        log('Error:', err);
-        showError(tn.errGeneral);
-        isSubmitting = false;
-        setLoadingState(false);
-    }
+    offerCard.style.display = 'none';
+    document.getElementById('successTitle').textContent = tn.declineTitle;
+    document.getElementById('successPerex').textContent = tn.declineText;
+    successCard.style.display = 'block';
+    successCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ============================================
